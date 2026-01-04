@@ -13,13 +13,13 @@ $(BUILDROOT_DIR): $(BUILDROOT_CFG) $(KERNEL_CFG) $(BUSYBOX_CFG)
 	$(RM) buildroot.tar.gz
 	mv buildroot-2023.05-rc2 $@
 
-$(BUILDROOT_DIR)/.config:
+$(BUILDROOT_DIR)/.config: $(BUILDROOT_DIR) $(BUILDROOT_CFG)
 	cp $(BUILDROOT_CFG) $@
 
-$(BUILDROOT_DIR)/kernel.config:
+$(BUILDROOT_DIR)/kernel.config: $(BUILDROOT_DIR) $(KERNEL_CFG)
 	cp $(KERNEL_CFG) $@
 
-$(BUILDROOT_DIR)/busybox.config:
+$(BUILDROOT_DIR)/busybox.config: $(BUILDROOT_DIR) $(BUSYBOX_CFG)
 	cp $(BUSYBOX_CFG) $@
 
 .PHONY: $(BUILDROOT_DIR)/output/images/Image
@@ -36,7 +36,7 @@ linux_image.bin: $(BUILDROOT_DIR)/output/images/Image
 	dd if=/dev/zero bs=1 seek=4194304 count=0 of=linux_image.bin
 # Append the actual kernel image
 	cat $(BUILDROOT_DIR)/output/images/Image >> linux_image.bin
-	
+
 # Pack the raw image into a dummy ELF for VTop to read
 linux_image.elf: linux_image.bin
 	$(RV32_OBJCOPY) -B riscv --input-target=binary --output-target=elf32-little linux_image.bin linux_image.elf
