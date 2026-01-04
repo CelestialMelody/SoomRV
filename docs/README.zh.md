@@ -171,11 +171,19 @@ SoomRV 采用超标量乱序执行架构，每个周期最多可以执行 4 条�
 ## 仿真
 
 1. 安装 [RV32 Linux 工具链](https://github.com/riscv-collab/riscv-gnu-toolchain) 以及 Verilator（至少版本 5.0）。
-2. 运行 `make setup` 来构建子模块。
-3. 运行 `make` 来使用 Verilator 构建二进制文件（另外，`make trace` 也会生成 VCD 跟踪）。
-4. 要运行裸机代码，使用 `./obj_dir/VTop <汇编文件>` 或 `<裸机 elf 文件>`。
+2. 补充依赖安装：
+
+   Arch Linux/Manjaro 系
+
+   ```bash
+   sudo pacman -S cpio
+   ```
+3. 运行 `make setup` 来构建子模块。
+
+4. 运行 `make` 来使用 Verilator 构建二进制文件（另外，`make trace` 也会生成 VCD 跟踪）。
+5. 要运行裸机代码，使用 `./obj_dir/VTop <汇编文件>` 或 `<裸机 elf 文件>`。
    例如，运行 `./obj_dir/VTop test_programs/dhry_1.s` 来运行 Dhrystone。可选择添加 `--perfc` 来打印性能计数器，或 `-x <开始时间>` 来指定何时启用跟踪（`-x0` 表示从开始跟踪）。
-5. 要运行 Linux，使用 `./obj_dir/VTop --perfc --device-tree=test_programs/linux/device_tree.dtb test_programs/linux/linux_image.elf`（或 `make linux` 进行完整构建）。以 `root` 身份登录，无需密码。
+6. 要运行 Linux，使用 `./obj_dir/VTop --perfc --device-tree=test_programs/linux/device_tree.dtb test_programs/linux/linux_image.elf`（或 `make linux` 进行完整构建）。以 `root` 身份登录，无需密码。
    在仿真中构建 Linux 和启动它至少需要几个小时！
 
 ### 控制台
