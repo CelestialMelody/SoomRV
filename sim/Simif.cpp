@@ -13,6 +13,12 @@ bool SpikeSimif::compare_state()
 
     return true;
 }
+/**
+ * mismatch x30
+ * ERROR 4 (fetchID=18, sqN=42)
+ * time=1596305
+ * ir=001ef6bb ppc=8000351c inst=7a402f73 sqn=43
+ */
 bool SpikeSimif::is_pass_thru_inst(const Inst& i)
 {
     // pass through some HPM counter reads
