@@ -36,6 +36,7 @@ parameter FETCH_WORDS = 1 << (`FSIZE_E - 1);
 
 // ROB Size
 `define ROB_SIZE_EXP 6
+// TODO: More? like 7 -> May need to change nodel_headers.h
 `define RF_SIZE_EXP 6
 
 // PC at reset
@@ -80,7 +81,7 @@ parameter FETCH_WORDS = 1 << (`FSIZE_E - 1);
 
 
 // Enable floating point (zfinx) support
-//`define ENABLE_FP
+`define ENABLE_FP
 
 `define ENABLE_INT_DIV
 `define ENABLE_INT_MUL
@@ -92,7 +93,7 @@ parameter HANG_COUNTER_LEN = 16;
 
 parameter NUM_AGUS = 2;
 parameter NUM_ALUS = 3;
-// How many of the ALU ports support branches?
+// TODO: How many of the ALU ports support branches?
 parameter NUM_BRANCH_PORTS = 2;
 
 parameter NUM_PORTS = NUM_AGUS + NUM_ALUS;
