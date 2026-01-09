@@ -32,3 +32,6 @@
 !docs
 !docs/*
 !Dockerfile
+
+!read
+!read/**
