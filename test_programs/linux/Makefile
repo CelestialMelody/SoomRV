@@ -1,5 +1,6 @@
 BUILDROOT_DIR ?= buildroot
-BUILDROOT_CFG ?= buildroot.config
+BUILDROOT_VERSION ?= 2025.11
+# BUILDROOT_CFG ?= buildroot.config
 KERNEL_CFG ?= kernel.config
 BUSYBOX_CFG ?= busybox.config
 RV32_OBJCOPY ?= riscv32-unknown-linux-gnu-objcopy
@@ -7,15 +8,20 @@ RV32_OBJCOPY ?= riscv32-unknown-linux-gnu-objcopy
 .PHONY: all
 all: linux_image.elf
 
-$(BUILDROOT_DIR): $(BUILDROOT_CFG) $(KERNEL_CFG) $(BUSYBOX_CFG)
-	curl -Lo buildroot.tar.gz https://github.com/buildroot/buildroot/archive/refs/tags/2023.05-rc2.tar.gz
+$(BUILDROOT_DIR): $(KERNEL_CFG) $(BUSYBOX_CFG)
+	curl -Lo buildroot.tar.gz https://github.com/buildroot/buildroot/archive/refs/tags/$(BUILDROOT_VERSION).tar.gz
 	tar -xzf buildroot.tar.gz
 	$(RM) buildroot.tar.gz
-	mv buildroot-2023.05-rc2 $@
+	mv buildroot-$(BUILDROOT_VERSION) $@
 
-$(BUILDROOT_DIR)/.config: $(BUILDROOT_DIR) $(BUILDROOT_CFG)
-	cp $(BUILDROOT_CFG) $@
+# 生成 .config 的规则
+# 不再复制旧文件，而是让 Buildroot 生成一个标准的 RISC-V 32位 默认配置
+# 使用 qemu_riscv32_virt_defconfig 作为基础
+# 这是一个通用的 RV32 配置，包含 Linux Kernel 和 OpenSBI
+$(BUILDROOT_DIR)/.config: $(BUILDROOT_DIR)
+	make -C $(BUILDROOT_DIR) qemu_riscv32_virt_defconfig
 
+# Kernel 和 Busybox 配置（保持不变）
 $(BUILDROOT_DIR)/kernel.config: $(BUILDROOT_DIR) $(KERNEL_CFG)
 	cp $(KERNEL_CFG) $@
 
