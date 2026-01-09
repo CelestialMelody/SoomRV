@@ -1,12 +1,17 @@
+ifeq ($(shell verilator -Wno-GENUNNAMED --version >/dev/null 2>&1 && echo YES),YES)
+    SUPPORTS_GENUNNAMED := -Wno-GENUNNAMED
+endif
+
 VERILATOR_FLAGS = \
-	--cc --build --threads 4 --unroll-stmts 999999 -unroll-count 999999 --assert -Wall -Wno-BLKSEQ -Wno-UNUSED \
-	-Wno-PINCONNECTEMPTY -Wno-DECLFILENAME -Wno-ENUMVALUE -O3 -sv \
-	$(VFLAGS) \
-	-CFLAGS "-std=c++17 -march=native" \
-	-LDFLAGS "-ldl" \
+    --cc --build --threads 4 --unroll-stmts 999999 -unroll-count 999999 --assert -Wall \
+    -Wno-BLKSEQ -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-DECLFILENAME -Wno-ENUMVALUE \
+    $(SUPPORTS_GENUNNAMED) \
+    -O3 -sv \
+    $(VFLAGS) \
+    -CFLAGS "-std=c++17 -march=native" \
+    -LDFLAGS "-ldl" \
 	-MAKEFLAGS -j$(nproc) \
 	-CFLAGS -DNOKONATA \
-	-CFLAGS -DCOSIM \
 	-CFLAGS -DSAVEABLE \
 	-CFLAGS -DNOCOVERAGE
 
