@@ -264,6 +264,7 @@ typedef enum logic[11:0]
     CSR_tdata1=12'h7A1,
     CSR_tdata2=12'h7A2,
     CSR_tdata3=12'h7A3,
+    CSR_tinfo=12'h7A4,   // trigger module info (read-only, 0 = no triggers)
     CSR_mcontext=12'h7A8,
 
     CSR_magic=12'hCC0
@@ -591,6 +592,7 @@ always_comb begin
         CSR_tdata1,
         CSR_tdata2,
         CSR_tdata3,
+        CSR_tinfo,
         CSR_mcontext: rdata = 0;
 
         // all unused perf counter stuff, also r/o zero
