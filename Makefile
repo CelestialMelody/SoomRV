@@ -1,11 +1,14 @@
-ifeq ($(shell verilator -Wno-GENUNNAMED --version >/dev/null 2>&1 && echo YES),YES)
-    SUPPORTS_GENUNNAMED := -Wno-GENUNNAMED
-endif
+# Optional -Wno-* flags: only added when this Verilator supports them. To add more, append to the list.
+VERILATOR_WNO_OPTIONAL := -Wno-GENUNNAMED -Wno-PROCASSINIT
+SUPPORTS_OPTIONAL_WNO := $(shell for f in $(VERILATOR_WNO_OPTIONAL); do verilator $$f --version >/dev/null 2>&1 && echo $$f; done)
+
+# Set COSIM=1 to enable co-simulation with Spike
+COSIM ?= 1
 
 VERILATOR_FLAGS = \
     --cc --build --threads 4 --unroll-stmts 999999 -unroll-count 999999 --assert -Wall \
     -Wno-BLKSEQ -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-DECLFILENAME -Wno-ENUMVALUE \
-    $(SUPPORTS_GENUNNAMED) \
+    $(SUPPORTS_OPTIONAL_WNO) \
     -O3 -sv \
     $(VFLAGS) \
     -CFLAGS "-std=c++17 -march=native" \
@@ -13,7 +16,8 @@ VERILATOR_FLAGS = \
 	-MAKEFLAGS -j$(nproc) \
 	-CFLAGS -DNOKONATA \
 	-CFLAGS -DSAVEABLE \
-	-CFLAGS -DNOCOVERAGE
+	-CFLAGS -DNOCOVERAGE \
+	$(if $(filter 1,$(COSIM)),-CFLAGS -DCOSIM,)
 
 VERILATOR_CFG = --exe sim/Top_tb.cpp sim/Simif.cpp --savable ../riscv-isa-sim/libriscv.a ../riscv-isa-sim/libsoftfloat.a ../riscv-isa-sim/libdisasm.a -CFLAGS -I../riscv-isa-sim --top-module Top -Ihardfloat
 
@@ -135,6 +139,8 @@ setup:
 	cd riscv-isa-sim && ./configure CFLAGS="-Os -g0" CXXFLAGS="-Os -g0" --with-boost=no --with-boost-asio=no --with-boost-regex=no
 	make -j $(nproc) -C riscv-isa-sim
 
+# if you encounter an error related to model_headers.h when executing `make`,
+# please try running `make prepare_header`.
 .PHONY: prepare_header
 prepare_header:
 	python scripts/prepare_header.py obj_dir/\*.h sim/model_headers.h
