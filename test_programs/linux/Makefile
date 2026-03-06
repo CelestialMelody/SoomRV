@@ -15,11 +15,15 @@ $(BUILDROOT_DIR): $(KERNEL_CFG) $(BUSYBOX_CFG)
 	mv buildroot-$(BUILDROOT_VERSION) $@
 
 # 生成 .config 的规则
-# 不再复制旧文件，而是让 Buildroot 生成一个标准的 RISC-V 32位 默认配置
-# 使用 qemu_riscv32_virt_defconfig 作为基础
-# 这是一个通用的 RV32 配置，包含 Linux Kernel 和 OpenSBI
+# 使用 qemu_riscv32_virt_defconfig 作为基础；若存在 soomrv_br2_overrides.config 则追加后执行 olddefconfig（ilp32、kernel.config、busybox.config 等）。
+# overlay 可由 scripts/merge_br2_config.py 从 buildroot.config 提取，见 scripts/README_configs.md
+SOOMRV_OVERLAY ?= soomrv_br2_overrides.config
 $(BUILDROOT_DIR)/.config: $(BUILDROOT_DIR)
 	make -C $(BUILDROOT_DIR) qemu_riscv32_virt_defconfig
+	@if [ -f $(SOOMRV_OVERLAY) ]; then \
+		cat $(SOOMRV_OVERLAY) >> $(BUILDROOT_DIR)/.config && \
+		make -C $(BUILDROOT_DIR) olddefconfig; \
+	fi
 
 # Kernel 和 Busybox 配置（保持不变）
 $(BUILDROOT_DIR)/kernel.config: $(BUILDROOT_DIR) $(KERNEL_CFG)
@@ -48,6 +52,11 @@ linux_image.elf: linux_image.bin
 	$(RV32_OBJCOPY) -B riscv --input-target=binary --output-target=elf32-little linux_image.bin linux_image.elf
 # Rename .data to .text for the testbench to execute it
 	$(RV32_OBJCOPY) -B riscv --input-target=elf32-little --rename-section .data=.text --output-target=elf32-little linux_image.elf
+
+# Regenerate SoomRV overlay from repo buildroot.config (see scripts/README_configs.md)
+.PHONY: update_br2_overlay
+update_br2_overlay:
+	cd scripts && python3 merge_br2_config.py extract -i ../buildroot.config -o ../soomrv_br2_overrides.config
 
 .PHONY: clean
 clean:
