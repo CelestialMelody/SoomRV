@@ -31,6 +31,7 @@
 !view.gtkw
 !docs
 !docs/*
+!docs/**
 !Dockerfile
 
 !read
