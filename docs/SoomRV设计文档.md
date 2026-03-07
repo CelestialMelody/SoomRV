@@ -789,7 +789,7 @@ else           $display("RESULT_DUPLICATE=0");
 
 ---
 
-## 8. F 部分额外改进说明
+## 8. 部分额外改进说明
 
 1. TLB 修复：新增 `TLB_fixed` 查重插入，并通过 `test_programs/dev` 对比测试验证通过。
 2. Linux 启动链路排障：定位新镜像问题主要在用户态配置而非核心流水线崩溃。
