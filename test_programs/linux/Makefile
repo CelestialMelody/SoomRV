@@ -1,5 +1,5 @@
 BUILDROOT_DIR ?= buildroot
-BUILDROOT_VERSION ?= 2025.11
+BUILDROOT_VERSION ?= 2026.02
 # BUILDROOT_CFG ?= buildroot.config
 KERNEL_CFG ?= kernel.config
 BUSYBOX_CFG ?= busybox.config
