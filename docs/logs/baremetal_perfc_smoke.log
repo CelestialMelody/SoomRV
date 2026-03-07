@@ -1,0 +1,169 @@
+❯ ./obj_dir/VTop --perfc test_programs/dhry_1.s
+riscv32-unknown-elf-ld: warning: section `.data' type changed to PROGBITS
+
+Dhrystone Benchmark, Version 2.1 (Language: C)
+
+Program compiled without 'register' attribute
+
+Please give the number of runs through the benchmark:
+Execution starts, %d runs through Dhrystone
+Execution ends
+
+Final values of the variables used in the benchmark:
+
+Int_Glob:            00000005
+Bool_Glob:           00000001
+Ch_1_Glob:           00000041
+Ch_2_Glob:           00000042
+Arr_1_Glob[8]:       00000007
+Arr_2_Glob[8][7]:    000007da
+Ptr_Glob->Ptr_Comp:          8001f000
+  Discr:             00000000
+  Enum_Comp:         00000002
+  Int_Comp:          00000011
+  Str_Comp:          DHRYSTONE PROGRAM, SOME STRING
+Next_Ptr_Glob->Ptr_Comp:          8001f000
+  Discr:             00000000
+  Enum_Comp:         00000001
+  Int_Comp:          00000012
+  Str_Comp:          DHRYSTONE PROGRAM, SOME STRING
+        should be:   DHRYSTONE PROGRAM, SOME STRING
+Int_1_Loc:           00000005
+Int_2_Loc:           0000000d
+Int_3_Loc:           00000007
+Enum_Loc:            00000001
+Str_1_Loc:           DHRYSTONE PROGRAM, 1'ST STRING
+        should be:   DHRYSTONE PROGRAM, 1'ST STRING
+Str_2_Loc:           DHRYSTONE PROGRAM, 2'ND STRING
+        should be:   DHRYSTONE PROGRAM, 2'ND STRING
+
+
+RESULTS
+Runtime (cycles) 280413
+Executed (instrs) 618908
+mIPC 2207
+mDMIPS/MHz 4065
+cycles:             294438
+instret:            624666 # 2.121554 IPC
+mispredicts:        98 # 0.156884 MPKI
+branch mispredicts: 92 # 0.085696%
+branches:           107356
+frontend stalled:   21033 # 1.785860%
+backend stalled:    288834 # 24.524178%
+store stalled:      179298 # 15.223748%
+load stalled:       38270 # 3.249411%
+ROB stalled:        42035 # 3.569088%
+      0 #  0 ORD |      61 # 62 BTK |      32 # 33 BNT
+      0 #  0 RET |       0 #  0 IBR |       5 #  5 MEM
+298535 cycles
+
+
+❯ ./obj_dir/VTop --perfc test_programs/add.s
+riscv32-unknown-elf-ld: warning: section `.data' type changed to PROGBITS
+cycles:             123
+instret:            45 # 0.365854 IPC
+mispredicts:        0 # 0.000000 MPKI
+branch mispredicts: 0 # 0.000000%
+branches:           2
+frontend stalled:   16735 # 3401.422764%
+backend stalled:    89 # 18.089431%
+store stalled:      7 # 1.422764%
+load stalled:       0 # 0.000000%
+ROB stalled:        0 # 0.000000%
+      0 # -nan ORD |       0 # -nan BTK |       0 # -nan BNT
+      0 # -nan RET |       0 # -nan IBR |       0 # -nan MEM
+4220 cycles
+
+❯ ./obj_dir/VTop --perfc test_programs/atomic2.s
+riscv32-unknown-elf-ld: warning: section `.data' type changed to PROGBITS
+cycles:             7862
+instret:            10287 # 1.308446 IPC
+mispredicts:        9 # 0.874891 MPKI
+branch mispredicts: 6 # 0.584226%
+branches:           1027
+frontend stalled:   16907 # 53.761765%
+backend stalled:    3649 # 11.603282%
+store stalled:      16989 # 54.022513%
+load stalled:       0 # 0.000000%
+ROB stalled:        0 # 0.000000%
+      0 #  0 ORD |       5 # 56 BTK |       1 # 11 BNT
+      0 #  0 RET |       0 #  0 IBR |       3 # 33 MEM
+11959 cycles
+
+❯ ./obj_dir/VTop --perfc test_programs/atomic.s
+riscv32-unknown-elf-ld: warning: section `.data' type changed to PROGBITS
+764c922a
+cycles:             7250
+instret:            1591 # 0.219448 IPC
+mispredicts:        445 # 279.698303 MPKI
+branch mispredicts: 8 # 6.015038%
+branches:           133
+frontend stalled:   25832 # 89.075862%
+backend stalled:    2332 # 8.041379%
+store stalled:      15623 # 53.872414%
+load stalled:       6 # 0.020690%
+ROB stalled:        0 # 0.000000%
+      0 #  0 ORD |       7 #  2 BTK |       1 #  0 BNT
+      0 #  0 RET |       0 #  0 IBR |     437 # 98 MEM
+11347 cycles
+
+❯ ./obj_dir/VTop --perfc test_programs/bf.s
+riscv32-unknown-elf-ld: warning: section `.data' type changed to PROGBITS
+Hello World!
+cycles:             7527
+instret:            9066 # 1.204464 IPC
+mispredicts:        230 # 25.369512 MPKI
+branch mispredicts: 226 # 8.702349%
+branches:           2597
+frontend stalled:   23398 # 77.713565%
+backend stalled:    11474 # 38.109473%
+store stalled:      794 # 2.637173%
+load stalled:       1161 # 3.856118%
+ROB stalled:        599 # 1.989504%
+      0 #  0 ORD |      37 # 16 BTK |       8 #  3 BNT
+      0 #  0 RET |     185 # 80 IBR |       0 #  0 MEM
+11624 cycles
+
+❯ ./obj_dir/VTop --perfc test_programs/bitmanip.s
+riscv32-unknown-elf-ld: warning: section `.data' type changed to PROGBITS
+00000060
+000000ff
+ffffff00
+000000ff
+ffffffff
+0000ffff
+00007fff
+0000000f
+00000010
+00000018
+ffffffff
+00dfceab
+cycles:             1322
+instret:            820 # 0.620272 IPC
+mispredicts:        0 # 0.000000 MPKI
+branch mispredicts: 0 # 0.000000%
+branches:           40
+frontend stalled:   17341 # 327.931165%
+backend stalled:    2416 # 45.688351%
+store stalled:      985 # 18.627080%
+load stalled:       110 # 2.080182%
+ROB stalled:        0 # 0.000000%
+      0 # -nan ORD |       0 # -nan BTK |       0 # -nan BNT
+      0 # -nan RET |       0 # -nan IBR |       0 # -nan MEM
+5419 cycles
+
+❯ ./obj_dir/VTop --perfc test_programs/memcpy.s
+riscv32-unknown-elf-ld: warning: section `.data' type changed to PROGBITS
+cycles:             8349
+instret:            28708 # 3.438496 IPC
+mispredicts:        4 # 0.139334 MPKI
+branch mispredicts: 4 # 0.097537%
+branches:           4101
+frontend stalled:   16794 # 50.287460%
+backend stalled:    66 # 0.197628%
+store stalled:      4133 # 12.375734%
+load stalled:       78 # 0.233561%
+ROB stalled:        1 # 0.002994%
+      0 #  0 ORD |       3 # 75 BTK |       1 # 25 BNT
+      0 #  0 RET |       0 #  0 IBR |       0 #  0 MEM
+12446 cycles
