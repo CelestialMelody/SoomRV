@@ -69,7 +69,6 @@ AGU 先算地址，load/store 分别入队；store 提交后进入 Store Issue Q
 - 分支反馈环：降低错误路径成本，提升预测质量。
 - 前递反馈环：降低数据相关导致的访存等待。
 - 停顿传播环：通过 `stall/ready` 握手把拥塞向上游传播，避免局部堵塞扩散成全局失稳。
-- 术语口径：源码中几乎不用单词 `backpressure`，但使用了等价机制 `IN_ready/OUT_ready`、`IN_stall/OUT_stall`、`RN_stall`、`SQ_stall`，因此本页建议使用“停顿传播（stall/ready 反压）”而不是只写 Backpressure。
 
 这三条环路解释系统为什么稳定。第一，分支反馈持续修正前端路径；第二，存储前递优先复用最新数据；第三，通过 stall/ready 把拥塞向上游传播，系统自动减速并在资源恢复后继续推进。
 
