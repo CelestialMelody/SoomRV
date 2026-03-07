@@ -1,12 +1,32 @@
 # Optional -Wno-* flags: only added when this Verilator supports them. To add more, append to the list.
-VERILATOR_WNO_OPTIONAL := -Wno-GENUNNAMED -Wno-PROCASSINIT
+VERILATOR_WNO_OPTIONAL := -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-IMPLICITSTATIC -Wno-EOFNEWLINE
 SUPPORTS_OPTIONAL_WNO := $(shell for f in $(VERILATOR_WNO_OPTIONAL); do verilator $$f --version >/dev/null 2>&1 && echo $$f; done)
 
 # Set COSIM=1 to enable co-simulation with Spike
 COSIM ?= 1
 
+# Select HardFloat source directory:
+#   make soomrv HARDFLOAT_DIR=/abs/path/to/hardfloat
+HARDFLOAT_DIR ?= hardfloat
+HARDFLOAT_SRC := $(wildcard $(HARDFLOAT_DIR)/*.v)
+ifeq ($(strip $(HARDFLOAT_SRC)),)
+$(error No HardFloat Verilog sources found under '$(HARDFLOAT_DIR)')
+endif
+
+# Select TLB implementation:
+#   make soomrv TLB_IMPL=orig
+#   make soomrv TLB_IMPL=fixed
+TLB_IMPL ?= fixed
+ifeq ($(TLB_IMPL),orig)
+TLB_SRC := src/TLB.sv
+else ifeq ($(TLB_IMPL),fixed)
+TLB_SRC := src/TLB_fixed.sv
+else
+$(error Unsupported TLB_IMPL='$(TLB_IMPL)'. Expected 'orig' or 'fixed')
+endif
+
 VERILATOR_FLAGS = \
-    --cc --build --threads 4 --unroll-stmts 999999 -unroll-count 999999 --assert -Wall \
+    --cc --build --threads 4 --unroll-stmts 999999 -unroll-count 999999 --assert -Wall -Wno-fatal \
     -Wno-BLKSEQ -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-DECLFILENAME -Wno-ENUMVALUE \
     $(SUPPORTS_OPTIONAL_WNO) \
     -O3 -sv \
@@ -19,7 +39,7 @@ VERILATOR_FLAGS = \
 	-CFLAGS -DNOCOVERAGE \
 	$(if $(filter 1,$(COSIM)),-CFLAGS -DCOSIM,)
 
-VERILATOR_CFG = --exe sim/Top_tb.cpp sim/Simif.cpp --savable ../riscv-isa-sim/libriscv.a ../riscv-isa-sim/libsoftfloat.a ../riscv-isa-sim/libdisasm.a -CFLAGS -I../riscv-isa-sim --top-module Top -Ihardfloat
+VERILATOR_CFG = --exe sim/Top_tb.cpp sim/Simif.cpp --savable ../riscv-isa-sim/libriscv.a ../riscv-isa-sim/libsoftfloat.a ../riscv-isa-sim/libdisasm.a -CFLAGS -I../riscv-isa-sim --top-module Top -I$(HARDFLOAT_DIR)
 
 VERILATOR_TRACE_FLAGS = --trace --trace-fst --trace-structs --trace-max-width 128 --trace-max-array 256 -CFLAGS -DTRACE
 
@@ -84,7 +104,7 @@ SRC_FILES = \
 	src/PageWalker.sv \
 	src/LoadSelector.sv \
 	src/LoadResultBuffer.sv \
-	src/TLB.sv \
+	$(TLB_SRC) \
 	src/BypassLSU.sv \
 	src/TValSelect.sv \
 	src/SoC.sv \
@@ -110,15 +130,7 @@ SRC_FILES = \
 	src/PrefetchPatternDetector.sv \
 	src/PrefetchIssuer.sv \
 	src/PrefetchExecutor.sv \
-	hardfloat/addRecFN.v \
-	hardfloat/compareRecFN.v \
-	hardfloat/fNToRecFN.v \
-	hardfloat/HardFloat_primitives.v \
-	hardfloat/HardFloat_specialize.v \
-	hardfloat/recFNToIN.v \
-	hardfloat/recFNToFN.v \
-	hardfloat/mulRecFN.v \
-	hardfloat/HardFloat_rawFN.v
+	$(HARDFLOAT_SRC)
 
 .PHONY: soomrv
 soomrv: $(SLANG_HEADER_OUTPUT)

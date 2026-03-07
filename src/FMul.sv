@@ -1,4 +1,4 @@
-`include "../hardfloat/HardFloat_consts.vi"
+`include "HardFloat_consts.vi"
 
 module FMul
 (

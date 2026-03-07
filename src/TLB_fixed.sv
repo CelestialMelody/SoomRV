@@ -31,7 +31,8 @@ reg[LEN-1:0] inc;
 always_comb begin
     inc = '0;
     for (integer i = 0; i < NUM_RQ; i=i+1) begin
-        reg[$clog2(LEN)-1:0] idx = IN_rqs[i].vpn[$clog2(LEN)-1:0];
+        reg[$clog2(LEN)-1:0] idx;
+        idx = IN_rqs[i].vpn[$clog2(LEN)-1:0];
         OUT_res[i] = 'x;
         OUT_res[i].pageFault = 0;
         OUT_res[i].accessFault = 0;
@@ -84,11 +85,13 @@ always_ff@(posedge clk /*or posedge rst*/) begin
             // disambiguate between ifetch and regular ld/st
             (IS_IFETCH ? IN_pw.rqID == 0 : IN_pw.rqID != 0)
         ) begin
-            reg[$clog2(LEN)-1:0] idx = IN_pw.vpn[$clog2(LEN)-1:0];
-            reg[$clog2(ASSOC)-1:0] assocIdx = counters[idx];
+            reg[$clog2(LEN)-1:0] idx;
+            reg[$clog2(ASSOC)-1:0] assocIdx;
+            logic already_exists;
+            idx = IN_pw.vpn[$clog2(LEN)-1:0];
+            assocIdx = counters[idx];
 
             // Check if VPN already exists in TLB to prevent duplicate insertion
-            logic already_exists;
             already_exists = 1'b0;
 
             for (integer j = 0; j < ASSOC; j=j+1) begin
