@@ -689,12 +689,22 @@ python scripts/test_suite.py
 
 ### 6.3 Linux `--perfc` 统计
 
-| 日志                                  | IPC 样本数 | 平均 IPC |            IPC 区间 | MPKI 样本数 | 平均 MPKI |            MPKI 区间 |
-| ------------------------------------- | ---------: | -------: | ------------------: | ----------: | --------: | -------------------: |
-| `docs/logs/linux_perfc_legacy.log`  |         18 | 1.402244 | 1.219810 ~ 2.333168 |          18 | 15.308239 | 1.552224 ~ 23.971078 |
-| `docs/logs/linux_perfc_current.log` |         16 | 1.080636 | 0.909734 ~ 2.111755 |          16 | 15.230155 | 2.621054 ~ 20.129442 |
+统计口径：使用 Python 脚本扫描日志中每条 `instret ... # <IPC> IPC`、`mispredicts ... # <MPKI> MPKI` 与 `branch mispredicts ... # <RATE>%` 记录，计算样本数、均值、最小值、最大值。
 
-补充：分支误判率均值分别为 7.862671%（旧）和 7.190885%（新）。
+| 日志 | IPC 样本数 | 平均 IPC | IPC 区间 | MPKI 样本数 | 平均 MPKI | MPKI 区间 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `docs/logs/linux_perfc_legacy.log` | 43 | 1.370866 | 1.097686 ~ 2.333168 | 43 | 16.013032 | 1.552224 ~ 23.971078 |
+| `docs/logs/linux_perfc_current.log` | 46 | 1.159559 | 0.802979 ~ 2.111755 | 46 | 15.609377 | 2.621054 ~ 21.926403 |
+
+指标说明：
+
+1. 平均 IPC：统计窗口内 IPC 样本的算术平均值，反映整体指令吞吐能力。
+2. IPC 区间：IPC 样本的最小值到最大值，反映运行阶段的吞吐波动范围。
+3. MPKI 样本数：纳入统计的 MPKI 记录数量（MPKI 为每千条指令的分支误判数）。
+4. 平均 MPKI：MPKI 样本的算术平均值，数值越低代表分支预测整体越稳定。
+5. MPKI 区间：MPKI 样本的最小值到最大值，反映分支误判压力的波动范围。
+
+补充：分支误判率均值分别为 8.099647%（legacy）和 7.660898%（current）。
 
 ### 6.4 裸机程序结果（`docs/logs/baremetal_perfc_smoke.log`）
 
@@ -710,8 +720,20 @@ python scripts/test_suite.py
 
 ### 6.5 TLB 修复对比（`docs/logs/dev_tlb_compare.log`）
 
-1. 原版：`RESULT_DUPLICATE=1`。
-2. 修复版：`RESULT_DUPLICATE=0`。
+修复动机：原始 `TLB.sv` 在 page-walk 回填路径上，满足 `IN_pw.valid` 后会直接写入 `tlb[idx][assocIdx]`，但没有检查“同一 set 是否已存在相同 VPN 条目”。这会导致同一页表映射被重复插入（源码内也有 `FIXME ... might double insert ...` 注释）。
+
+修复前的具体问题：
+
+1. 同一 VPN 在同一 set 多路重复驻留，等效降低了 TLB 可用相联度。
+2. 重复回填会推进替换计数器，挤占本应保留给其他 VPN 的 way，增加后续冲突 miss 风险。
+3. 在高 miss 或频繁 page-walk 场景下，TLB 结构状态更容易抖动，带来不必要的性能波动。
+
+本次修复：`TLB_fixed.sv` 增加 `already_exists` 判定，仅在未命中已有同 VPN 条目时才执行插入。
+
+对比结果（`docs/logs/dev_tlb_compare.log`）：
+
+1. 原版：`RESULT count=2`，`RESULT_DUPLICATE=1`。
+2. 修复版：`RESULT count=1`，`RESULT_DUPLICATE=0`。
 3. 自动判定：`PASS: fixed TLB prevents duplicate insertion`。
 
 这里引用的测试点在 `test_programs/dev/tlb_dup_tb.sv:69-96`。
@@ -740,27 +762,27 @@ else           $display("RESULT_DUPLICATE=0");
 
 ## 7. 成员分工与贡献
 
-### 7.1 卫佳乐
+**卫佳乐**
 
 1. 负责范围：前端取指、预测恢复、BTB/TAGE/ReturnStack。
 2. 贡献点：统一前端改向语义，补齐 fetchLimit 风险分析，梳理 predIllegal 修复路径。
 
-### 7.2 刘元昊
+**刘元昊**
 
 1. 负责范围：Decode/Rename/Issue/Load 读操作数链。
 2. 贡献点：明确 tag/sqN 契约、IssueQueue 发射条件与写回冲突处理。
 
-### 7.3 何国真
+**何国真**
 
 1. 负责范围：执行单元、ROB 提交、CSR/Trap 控制。
 2. 贡献点：明确提交门控与提交侧预测更新策略，完成 CSR 兼容性收敛。
 
-### 7.4 陈冠宇
+**陈冠宇**
 
 1. 负责范围：AGU/LSU/SQ/SQB/TLB/PageWalker。
 2. 贡献点：梳理访存快慢路径、TLB miss 协同、内存序回放机制。
 
-### 7.5 刘卓敏
+**刘卓敏**
 
 1. 负责范围：Top/SoC/Core/memc 等各个模块的串联，其他改进包括 TLB 修复、新版本 Linux 构建测试、工具链更新与兼容性修复等。
 2. 贡献点：统一 A-D 接口口径，完成系统级数据面/控制面。

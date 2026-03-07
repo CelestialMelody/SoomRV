@@ -339,3 +339,311 @@ load stalled:       3611154 # 13.127684%
 ROB stalled:        1266121 # 4.602749%
    1836 #  1 ORD |   82867 # 41 BTK |  114089 # 57 BNT
     131 #  0 RET |    2056 #  1 IBR |     105 #  0 MEM
+cycles:             6435823
+instret:            8388609 # 1.303424 IPC
+mispredicts:        175716 # 20.946977 MPKI
+branch mispredicts: 173092 # 10.419496%
+branches:           1661232
+frontend stalled:   4488813 # 17.436826%
+backend stalled:    7152233 # 27.782900%
+store stalled:      1379759 # 5.359684%
+load stalled:       3230131 # 12.547467%
+ROB stalled:        1103717 # 4.287396%
+   1941 #  1 ORD |   75748 # 43 BTK |   95593 # 54 BNT
+    139 #  0 RET |    2185 #  1 IBR |     110 #  0 MEM
+cycles:             5675686
+instret:            8388609 # 1.477990 IPC
+mispredicts:        121671 # 14.504312 MPKI
+branch mispredicts: 119123 # 7.283022%
+branches:           1635626
+frontend stalled:   3184419 # 14.026582%
+backend stalled:    6118360 # 26.949870%
+store stalled:      1402808 # 6.179024%
+load stalled:       2666148 # 11.743726%
+ROB stalled:        942372 # 4.150917%
+   1992 #  2 ORD |   59076 # 49 BTK |   58190 # 48 BNT
+    144 #  0 RET |    2142 #  2 IBR |     127 #  0 MEM
+cycles:             5646396
+instret:            8388611 # 1.485658 IPC
+mispredicts:        116151 # 13.846273 MPKI
+branch mispredicts: 113927 # 6.893937%
+branches:           1652568
+frontend stalled:   3032431 # 13.426401%
+backend stalled:    6259287 # 27.713638%
+store stalled:      1245751 # 5.515691%
+load stalled:       2706251 # 11.982205%
+ROB stalled:        953225 # 4.220502%
+   1816 #  2 ORD |   56529 # 49 BTK |   55568 # 48 BNT
+    134 #  0 RET |    1984 #  2 IBR |     120 #  0 MEM
+cycles:             5857832
+instret:            8388608 # 1.432033 IPC
+mispredicts:        132824 # 15.833855 MPKI
+branch mispredicts: 129972 # 7.965664%
+branches:           1631653
+frontend stalled:   3504814 # 14.957812%
+backend stalled:    6463406 # 27.584463%
+store stalled:      1346591 # 5.746968%
+load stalled:       2774328 # 11.840251%
+ROB stalled:        953553 # 4.069564%
+   2258 #  2 ORD |   60765 # 46 BTK |   66740 # 50 BNT
+    166 #  0 RET |    2769 #  2 IBR |     126 #  0 MEM
+cycles:             6375864
+instret:            8388610 # 1.315682 IPC
+mispredicts:        160641 # 19.149895 MPKI
+branch mispredicts: 156355 # 9.876053%
+branches:           1583173
+frontend stalled:   4359283 # 17.092911%
+backend stalled:    6905245 # 27.075723%
+store stalled:      1542489 # 6.048157%
+load stalled:       3250669 # 12.745994%
+ROB stalled:        1057130 # 4.145046%
+   3397 #  2 ORD |   68132 # 42 BTK |   83794 # 52 BNT
+    205 #  0 RET |    4958 #  3 IBR |     155 #  0 MEM
+cycles:             5752767
+instret:            8388610 # 1.458187 IPC
+mispredicts:        128778 # 15.351530 MPKI
+branch mispredicts: 126064 # 7.633848%
+branches:           1651382
+frontend stalled:   3317521 # 14.417067%
+backend stalled:    6232861 # 27.086361%
+store stalled:      1372242 # 5.963400%
+load stalled:       2719229 # 11.817048%
+ROB stalled:        980577 # 4.261328%
+   1888 #  1 ORD |   59764 # 46 BTK |   64818 # 50 BNT
+    119 #  0 RET |    2078 #  2 IBR |     111 #  0 MEM
+cycles:             6360663
+instret:            8388611 # 1.318827 IPC
+mispredicts:        145549 # 17.350787 MPKI
+branch mispredicts: 137618 # 9.681468%
+branches:           1421458
+frontend stalled:   4551730 # 17.890155%
+backend stalled:    6969453 # 27.392793%
+store stalled:      1754404 # 6.895523%
+load stalled:       2971579 # 11.679518%
+ROB stalled:        806845 # 3.171230%
+   6727 #  5 ORD |   58298 # 40 BTK |   68295 # 47 BNT
+    224 #  0 RET |   11610 #  8 IBR |     395 #  0 MEM
+cycles:             6687231
+instret:            8388608 # 1.254422 IPC
+mispredicts:        178458 # 21.273851 MPKI
+branch mispredicts: 176308 # 9.951430%
+branches:           1771685
+frontend stalled:   4502373 # 16.831978%
+backend stalled:    7535811 # 28.172389%
+store stalled:      1198836 # 4.481810%
+load stalled:       3658860 # 13.678532%
+ROB stalled:        1464404 # 5.474628%
+   1650 #  1 ORD |   74278 # 42 BTK |  100444 # 56 BNT
+    146 #  0 RET |    1850 #  1 IBR |      90 #  0 MEM
+cycles:             6372182
+instret:            8388608 # 1.316442 IPC
+mispredicts:        170150 # 20.283461 MPKI
+branch mispredicts: 166325 # 10.574195%
+branches:           1572933
+frontend stalled:   4477575 # 17.566883%
+backend stalled:    7021569 # 27.547742%
+store stalled:      1555969 # 6.104538%
+load stalled:       3076507 # 12.070069%
+ROB stalled:        968470 # 3.799601%
+   2993 #  2 ORD |   74521 # 44 BTK |   87969 # 52 BNT
+    160 #  0 RET |    4329 #  3 IBR |     178 #  0 MEM
+cycles:             6536113
+instret:            8388610 # 1.283425 IPC
+mispredicts:        163862 # 19.533868 MPKI
+branch mispredicts: 159976 # 9.671103%
+branches:           1654165
+frontend stalled:   4404038 # 16.845019%
+backend stalled:    7279452 # 27.843200%
+store stalled:      1314529 # 5.027946%
+load stalled:       3483048 # 13.322322%
+ROB stalled:        1274743 # 4.875769%
+   3198 #  2 ORD |   66277 # 40 BTK |   89127 # 54 BNT
+    143 #  0 RET |    4933 #  3 IBR |     184 #  0 MEM
+cycles:             6749523
+instret:            8388611 # 1.242845 IPC
+mispredicts:        187335 # 22.332064 MPKI
+branch mispredicts: 184947 # 10.594013%
+branches:           1745769
+frontend stalled:   4737541 # 17.547688%
+backend stalled:    7631954 # 28.268494%
+store stalled:      1239537 # 4.591202%
+load stalled:       3634901 # 13.463548%
+ROB stalled:        1365516 # 5.057824%
+   1800 #  1 ORD |   79614 # 42 BTK |  103579 # 55 BNT
+    158 #  0 RET |    2071 #  1 IBR |     113 #  0 MEM
+cycles:             4113403
+instret:            8388611 # 2.039336 IPC
+mispredicts:        42195 # 5.030034 MPKI
+branch mispredicts: 37694 # 3.795804%
+branches:           993044
+frontend stalled:   1317153 # 8.005251%
+backend stalled:    2626854 # 15.965212%
+store stalled:      2019241 # 12.272327%
+load stalled:       1880017 # 11.426166%
+ROB stalled:        221716 # 1.347522%
+   4033 # 10 ORD |   16444 # 39 BTK |   17377 # 41 BNT
+    160 #  0 RET |    3981 #  9 IBR |     200 #  0 MEM
+cycles:             5472767
+instret:            8388610 # 1.532791 IPC
+mispredicts:        119216 # 14.211651 MPKI
+branch mispredicts: 115002 # 8.513930%
+branches:           1350751
+frontend stalled:   3207387 # 14.651578%
+backend stalled:    5306446 # 24.240234%
+store stalled:      1732868 # 7.915868%
+load stalled:       2590702 # 11.834516%
+ROB stalled:        665029 # 3.037901%
+   3434 #  3 ORD |   52129 # 44 BTK |   59035 # 50 BNT
+    155 #  0 RET |    4253 #  4 IBR |     210 #  0 MEM
+cycles:             6670016
+instret:            8388609 # 1.257660 IPC
+mispredicts:        181508 # 21.637437 MPKI
+branch mispredicts: 178448 # 10.541768%
+branches:           1692771
+frontend stalled:   4652505 # 17.438133%
+backend stalled:    7516097 # 28.171211%
+store stalled:      1350195 # 5.060689%
+load stalled:       3509018 # 13.152210%
+ROB stalled:        1263608 # 4.736151%
+   2372 #  1 ORD |   74323 # 41 BTK |  101366 # 56 BNT
+    128 #  0 RET |    3152 #  2 IBR |     167 #  0 MEM
+cycles:             6699653
+instret:            8388610 # 1.252096 IPC
+mispredicts:        179174 # 21.359200 MPKI
+branch mispredicts: 177005 # 10.017629%
+branches:           1766935
+frontend stalled:   4532730 # 16.914048%
+backend stalled:    7557012 # 28.199266%
+store stalled:      1207559 # 4.506051%
+load stalled:       3656299 # 13.643613%
+ROB stalled:        1456370 # 5.434498%
+   1648 #  1 ORD |   74387 # 42 BTK |  101033 # 56 BNT
+    133 #  0 RET |    1865 #  1 IBR |     108 #  0 MEM
+cycles:             6228985
+instret:            8388609 # 1.346706 IPC
+mispredicts:        159811 # 19.050954 MPKI
+branch mispredicts: 155236 # 10.310697%
+branches:           1505582
+frontend stalled:   4321663 # 17.344973%
+backend stalled:    6830576 # 27.414482%
+store stalled:      1680006 # 6.742696%
+load stalled:       2872907 # 11.530398%
+ROB stalled:        822149 # 3.299691%
+   3673 #  2 ORD |   70843 # 44 BTK |   79235 # 50 BNT
+    145 #  0 RET |    5666 #  4 IBR |     249 #  0 MEM
+cycles:             5741224
+instret:            8388610 # 1.461119 IPC
+mispredicts:        120679 # 14.386054 MPKI
+branch mispredicts: 115842 # 8.005009%
+branches:           1447119
+frontend stalled:   3414941 # 14.870265%
+backend stalled:    5960173 # 25.953407%
+store stalled:      1672645 # 7.283486%
+load stalled:       2725417 # 11.867752%
+ROB stalled:        803082 # 3.496998%
+   4076 #  3 ORD |   52366 # 43 BTK |   57559 # 48 BNT
+    191 #  0 RET |    6213 #  5 IBR |     274 #  0 MEM
+cycles:             6601699
+instret:            8388608 # 1.270674 IPC
+mispredicts:        185846 # 22.154570 MPKI
+branch mispredicts: 183374 # 10.983064%
+branches:           1669607
+frontend stalled:   4674167 # 17.700621%
+backend stalled:    7480630 # 28.328427%
+store stalled:      1363511 # 5.163485%
+load stalled:       3365104 # 12.743326%
+ROB stalled:        1134744 # 4.297167%
+   1830 #  1 ORD |   76865 # 41 BTK |  104824 # 56 BNT
+    146 #  0 RET |    2054 #  1 IBR |     127 #  0 MEM
+cycles:             5935401
+instret:            8388608 # 1.413318 IPC
+mispredicts:        144825 # 17.264485 MPKI
+branch mispredicts: 142068 # 8.741065%
+branches:           1625294
+frontend stalled:   3688588 # 15.536389%
+backend stalled:    6337490 # 26.693605%
+store stalled:      1548946 # 6.524184%
+load stalled:       2794093 # 11.768763%
+ROB stalled:        983852 # 4.144000%
+   2023 #  1 ORD |   65746 # 45 BTK |   74472 # 51 BNT
+    175 #  0 RET |    2285 #  2 IBR |     124 #  0 MEM
+[    5.423024] Freeing unused kernel image (initmem) memory: 10116K
+[    5.423574] Run /init as init process
+cycles:             5156827
+instret:            8388611 # 1.626700 IPC
+mispredicts:        54193 # 6.460307 MPKI
+branch mispredicts: 40669 # 4.215903%
+branches:           964657
+frontend stalled:   2433054 # 11.795306%
+backend stalled:    3944624 # 19.123310%
+store stalled:      3666003 # 17.772571%
+load stalled:       1757704 # 8.521248%
+ROB stalled:        437254 # 2.119782%
+  12074 # 22 ORD |   16263 # 30 BTK |   16150 # 30 BNT
+    231 #  0 RET |    8733 # 16 IBR |     742 #  1 MEM
+cycles:             7619680
+instret:            8388611 # 1.100914 IPC
+mispredicts:        118323 # 14.105196 MPKI
+branch mispredicts: 86992 # 6.242609%
+branches:           1393520
+frontend stalled:   6249131 # 20.503259%
+backend stalled:    8554633 # 28.067560%
+store stalled:      2290774 # 7.515978%
+load stalled:       4397831 # 14.429185%
+ROB stalled:        597067 # 1.958963%
+  23832 # 20 ORD |   37834 # 32 BTK |   33537 # 28 BNT
+   1220 #  1 RET |   16620 # 14 IBR |    5280 #  4 MEM
+cycles:             7390382
+instret:            8388608 # 1.135071 IPC
+mispredicts:        125129 # 14.916539 MPKI
+branch mispredicts: 92626 # 6.723356%
+branches:           1377675
+frontend stalled:   5684854 # 19.230582%
+backend stalled:    8350692 # 28.248513%
+store stalled:      2297568 # 7.772156%
+load stalled:       4267993 # 14.437660%
+ROB stalled:        571122 # 1.931977%
+  23821 # 19 ORD |   39901 # 32 BTK |   35242 # 28 BNT
+   1140 #  1 RET |   18800 # 15 IBR |    6225 #  5 MEM
+Starting syslogd: OK
+cycles:             7493388
+instret:            8388611 # 1.119468 IPC
+mispredicts:        122158 # 14.562363 MPKI
+branch mispredicts: 89965 # 6.492401%
+branches:           1385697
+frontend stalled:   5916879 # 19.740333%
+backend stalled:    8476116 # 28.278650%
+store stalled:      2280328 # 7.607800%
+load stalled:       4320039 # 14.412836%
+ROB stalled:        590888 # 1.971365%
+  24055 # 20 ORD |   39040 # 32 BTK |   35172 # 29 BNT
+   1340 #  1 RET |   16743 # 14 IBR |    5808 #  5 MEM
+Starting klogd: OK
+Running sysctl:cycles:             7642084
+instret:            8388608 # 1.097686 IPC
+mispredicts:        117638 # 14.023542 MPKI
+branch mispredicts: 84381 # 6.110611%
+branches:           1380893
+frontend stalled:   6334193 # 20.721419%
+backend stalled:    8995000 # 29.425874%
+store stalled:      2289178 # 7.488723%
+load stalled:       3947408 # 12.913389%
+ROB stalled:        613106 # 2.005690%
+  25519 # 22 ORD |   35618 # 30 BTK |   31763 # 27 BNT
+   1372 #  1 RET |   18121 # 15 IBR |    5245 #  4 MEM
+ OK
+cycles:             7204422
+instret:            8388611 # 1.164370 IPC
+mispredicts:        112767 # 13.442869 MPKI
+branch mispredicts: 79720 # 5.518681%
+branches:           1444548
+frontend stalled:   5337440 # 18.521403%
+backend stalled:    8130415 # 28.213280%
+store stalled:      2112592 # 7.330887%
+load stalled:       4205171 # 14.592326%
+ROB stalled:        642739 # 2.230363%
+  24736 # 22 ORD |   34277 # 30 BTK |   31095 # 28 BNT
+   1434 #  1 RET |   14881 # 13 IBR |    6344 #  6 MEM
+Saving 256 bits of non-creditable seed for next boot
+
+Welcome to SoomRV Buildroot
