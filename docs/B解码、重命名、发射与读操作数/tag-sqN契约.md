@@ -15,23 +15,14 @@
 - 生命周期：tag 在重命名时由 TagBuffer 分配，在该条指令提交时由 ROB 通知释放（RenameTable 更新 comTag，TagBuffer 回收旧物理寄存器）。
 
 因此，“明确 tag 契约” = 在文档/设计里写清：tag 唯一标识一个生产者、全流水线用 tag 表示依赖、就绪只由提交或写回/前递更新。
+sqN 契约
+全局顺序：重命名阶段为每条指令分配单调递增的 sqN；数值越小越早。
+比较方式：sqN 比 ROB 索引多一位，用有符号差比较顺序，例如：
+$signed(IN_uop.sqN - IN_branch.sqN) <= 0 → 该指令在分支之前或等于分支（保留）；
+$signed(IN_uop.sqN - IN_branch.sqN) > 0 → 在分支之后（误预测要 flush）。
 
-### sqN 契约
-
-- 全局顺序：重命名阶段为每条指令分配单调递增的 sqN；数值越小越“老”。
-
-- 比较方式：sqN 比 ROB 索引多一位，用有符号差比较顺序，例如：
-
-- $signed(IN_uop.sqN - IN_branch.sqN) <= 0 → 该指令在分支之前或等于分支（保留）；
-
-- $signed(IN_uop.sqN - IN_branch.sqN) > 0 → 在分支之后（误预测要 flush）。
-
-- 用途：
-
-- 作为 ROB 索引（sqN 的低位）；
-
-- 分支/异常时判断“哪些指令要无效”；
-
-- load/store 顺序用 loadSqN、storeSqN 在 LoadBuffer/StoreQueue 里排队。
-
+##用途：
+作为 ROB 索引（sqN 的低位）；
+分支/异常时判断“哪些指令要无效”；
+load/store 顺序用 loadSqN、storeSqN 在 LoadBuffer/StoreQueue 里排队。
 因此，“明确 sqN 契约” = 约定 sqN 的分配单调、用有符号差比较先后、以及在各处（ROB、flush、load/store）的用法一致。
