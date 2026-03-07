@@ -202,6 +202,27 @@ SoomRV 采用超标量乱序执行架构，每个周期最多可以执行 4 条�
 6. 要运行 Linux，使用 `./obj_dir/VTop --perfc --device-tree=test_programs/linux/device_tree.dtb test_programs/linux/linux_image.elf`（或 `make linux` 进行完整构建）。以 `root` 身份登录，无需密码。
    在仿真中构建 Linux 和启动它至少需要几个小时！
 
+### Linux 启动流程与速度说明
+
+- `test_programs/linux/linux_image.elf` 是将 OpenSBI `fw_jump.bin` 与 Linux `Image` 打包后的镜像；`VTop` 启动时会把 ELF 段拷入仿真内存。
+- `--device-tree=<dtb>` 会把设备树加载到内存高地址，并在启动时通过寄存器 `a1(x11)` 传给 OpenSBI/Linux。
+- Linux 启动慢是正常现象：这是周期级 RTL 仿真，不是功能级模拟，指令数很大时耗时会显著增加。
+- 默认构建参数 `COSIM=1` 会启用与 Spike 的逐提交对拍（co-simulation），可显著提升正确性检查强度，但会进一步降低速度。
+
+如果只是想更快把 Linux 跑起来（不做对拍），可用：
+
+```bash
+make clean
+make soomrv COSIM=0
+./obj_dir/VTop --perfc --device-tree=test_programs/linux/device_tree.dtb --backup-file=soomrv.backup test_programs/linux/linux_image.elf
+```
+
+中断后可从快照继续：
+
+```bash
+./obj_dir/VTop soomrv.backup --backup-file=soomrv2.backup
+```
+
 ### 控制台
 
 控制台输入是行缓冲的，以便在低仿真速度下更容易输入。在 Linux 内中，
