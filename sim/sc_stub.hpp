@@ -152,3 +152,9 @@ struct sc_bv {
         return (*this).range(LEN-1, 0);
     }
 };
+
+namespace sc_dt
+{
+    template <size_t LEN>
+    using sc_bv = ::sc_bv<LEN>;
+}

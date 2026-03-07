@@ -25,6 +25,7 @@
 #include "VTop_BranchPredictor__N3.h"
 #include "VTop_RenameTable__ND5.h"
 #include "VTop_IF_ICTable.h"
+#include "VTop_IF_ICache.h"
 #include "VTop_ReturnStack.h"
 #include "VTop_RegFile__NB5_A1.h"
 #include "VTop_RegFile__W23_S20_N3_NB1.h"
