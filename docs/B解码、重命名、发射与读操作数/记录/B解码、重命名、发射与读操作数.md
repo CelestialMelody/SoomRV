@@ -1,8 +1,12 @@
 # 任务单 B：解码、重命名、发射与读操作数
 
-本文档说明 SoomRV 从预译码指令到执行级操作数的整条数据路径：**PD_Instr → D_UOp → R_UOp → IS_UOp → EX_UOp**，并解释 **tag/avail** 的依赖与就绪传播，以及**“发射后读操作数”**的设计动机与代价。
+本文档说明 SoomRV 从预译码指令到执行级操作数的整条数据路径，并完成以下三项说明：
 
-相关概述见 [Overview.zh.md](../Overview.zh.md)。UOp 及流水线字段定义在 [src/Include.sv](../../src/Include.sv)。
+1. **讲清 PD_Instr → D_UOp → R_UOp → IS_UOp → EX_UOp**：各阶段 UOp 的字段含义、转换模块与数据流。
+2. **讲清 tag/avail 的依赖与就绪传播**：物理 tag 表示依赖、avail 表示就绪，在 Rename 与 IssueQueue 中如何产生与更新。
+3. **讲清“发射后读操作数”的动机与代价**：为何在 Load 级才读操作数数值，以及带来的延迟、面积与关键路径影响。
+
+相关概述见 [Overview.zh.md](../../Overview.zh.md)。UOp 及流水线字段定义在 [src/Include.sv](../../../src/Include.sv)。
 
 ---
 
@@ -23,6 +27,8 @@
 ---
 
 ## 2. UOp 数据流：PD_Instr → D_UOp → R_UOp → IS_UOp → EX_UOp
+
+本节讲清整条链上**每一级 UOp 的形态与转换**：预译码输出单条指令（PD_Instr），译码得到架构寄存器格式（D_UOp），重命名得到物理 tag 与就绪位（R_UOp），发射队列就绪后输出仍带 tag 的 IS_UOp，最后在 Load 级读出操作数数值得到 EX_UOp。
 
 ### 2.1 PD_Instr（预译码输出）
 
@@ -123,6 +129,8 @@ PreDecode 将 IFetch 的 16 字节束拆成多条 16/32 位指令，按 `DEC_WID
 
 ## 3. tag / avail 的依赖与就绪传播
 
+本节讲清**依赖如何用 tag 表示、就绪如何用 avail 表示**，以及从 Rename 查表到 IssueQueue 内写回/前递匹配的**就绪传播路径**。
+
 ### 3.1 概念
 
 - **Tag**：物理寄存器编号（或“无寄存器”的特殊编码，如 TAG_ZERO、立即数编码）。每条写寄存器的指令在重命名时被分配一个 tagDst；依赖该结果的指令的源用 tagA/tagB（及原子指令的 tagC）表示。
@@ -169,6 +177,8 @@ PreDecode 将 IFetch 的 16 字节束拆成多条 16/32 位指令，按 `DEC_WID
 ---
 
 ## 4. “发射后读操作数”的动机与代价
+
+本节讲清为何采用**“先发射（只带 tag）、再在 Load 级读操作数数值”**的设计，以及由此带来的**收益（面积、前递集中）与代价（延迟、Load 复杂度、RF 端口）**。
 
 ### 4.1 设计：操作数在 Load 级才读
 
