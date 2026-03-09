@@ -1,0 +1,37 @@
+info: using objcopy fallback shim for riscv32-unknown-elf-objcopy
+
+== category: rv32mi-p-instret_overflow (1 tests) ==
+running external-tests/riscv-tests/isa/rv32mi-p-instret_overflow: failed (rc=255, 0.6s)
+core   0: 0x80000124 (0x30529073) csrw    mtvec, t0
+core   0: 0x80000128 (0x30205073) csrwi   medeleg, 0
+core   0: 0x8000012c (0x30305073) csrwi   mideleg, 0
+core   0: 0x80000130 (0x00000193) li      gp, 0
+core   0: 0x80000134 (0x00000297) auipc   t0, 0x0
+core   0: 0x80000138 (0xed028293) addi    t0, t0, -304
+core   0: 0x8000013c (0x30529073) csrw    mtvec, t0
+core   0: 0x80000140 (0x00100513) li      a0, 1
+core   0: 0x80000144 (0x01f51513) slli    a0, a0, 31
+core   0: 0x80000148 (0x00054c63) bltz    a0, pc + 24
+0000000000000000000000000000000000000000000000000000000000000001
+core   0: 0x80000160 (0x00000293) li      t0, 0
+core   0: 0x80000164 (0x00028a63) beqz    t0, pc + 20
+0000000000000000000000000000000000000000000000000000000000000011
+core   0: 0x80000178 (0x30005073) csrwi   mstatus, 0
+core   0: 0x8000017c (0x00002537) lui     a0, 0x2
+core   0: 0x80000180 (0x80050513) addi    a0, a0, -2048
+core   0: 0x80000184 (0x30052073) csrs    mstatus, a0
+core   0: 0x80000188 (0x00000297) auipc   t0, 0x0
+core   0: 0x8000018c (0x01428293) addi    t0, t0, 20
+core   0: 0x80000190 (0x34129073) csrw    mepc, t0
+core   0: 0x80000194 (0xf1402573) csrr    a0, mhartid
+core   0: 0x80000198 (0x30200073) mret
+core   0: 0x8000019c (0x00000297) auipc   t0, 0x0
+core   0: 0x800001a0 (0x01028293) addi    t0, t0, 16
+core   0: 0x800001a4 (0x305292f3) csrrw   t0, mtvec, t0
+core   0: 0x800001a8 (0x32027073) csrci   mcountinhibit, 4
+core   0: 0x800001ac (0x30529073) csrw    mtvec, t0
+core   0: 0x800001b0 (0x00200193) li      gp, 2
+core   0: 0x800001b4 (0xb0205073) csrwi   minstret, 0
+core   0: 0x800001b8 (0xb0202573) csrr    a0, minstret
+mstatus=00000080 mepc=8000019c mcause=00000002 mtvec=80000004 mideleg=00000000 medeleg=00000000 mie=00000000 mip=00000000
+

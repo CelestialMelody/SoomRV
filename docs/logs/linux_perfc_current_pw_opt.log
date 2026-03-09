@@ -1,0 +1,268 @@
+❯ make soomrv BRANCH_PRED_IMPL=bt_arb PAGEWALKER_IMPL=pw_arb
+verilator --cc --build --threads 4 --unroll-stmts 999999 -unroll-count 999999 --assert -Wall -Wno-fatal -Wno-BLKSEQ -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-DECLFILENAME -Wno-ENUMVALUE -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-IMPLICITSTATIC -Wno-EOFNEWLINE -Wno-WIDTHEXPAND -O3 -sv  -CFLAGS "-std=c++17 -march=native" -LDFLAGS "-ldl" -MAKEFLAGS -j -CFLAGS -DNOKONATA -CFLAGS -DSAVEABLE -CFLAGS -DNOCOVERAGE -CFLAGS -DCOSIM --exe sim/Top_tb.cpp sim/Simif.cpp --savable ../riscv-isa-sim/libriscv.a ../riscv-isa-sim/libsoftfloat.a ../riscv-isa-sim/libdisasm.a -CFLAGS -I../riscv-isa-sim --top-module Top -Ihardfloat src/lib/PriorityEncoder.sv src/lib/OHEncoder.sv src/lib/RangeMaskGen.sv src/lib/PrefixSum.sv src/lib/PrefixRed.sv src/lib/OpDownsample.sv src/lib/PopCnt.sv src/lib/FIFO.sv src/Config.sv src/Include.sv src/InstrDecoder.sv src/Rename.sv src/Core.sv src/IssueQueue.sv src/IntALU.sv src/IFetch.sv src/Load.sv src/ROB.sv src/AGU.sv src/BranchPredictor_bt_arb.sv src/BTUpdateArbiter.sv src/LoadBuffer.sv src/StoreQueue.sv src/Multiply.sv src/Divide.sv src/MMIO.sv src/BranchSelector.sv src/MemRTL.sv src/MemRTL2W.sv src/Top.sv src/MemoryController.sv src/RenameTable.sv src/TagBuffer.sv src/FPU.sv src/FMul.sv src/FDiv.sv src/BranchTargetBuffer.sv src/BranchPredictionTable.sv src/ReturnStack.sv src/TageTable.sv src/TagePredictor.sv src/LoadStoreUnit.sv src/IFetchPipeline.sv src/CSR.sv src/TrapHandler.sv src/Peripherals.sv src/PageWalker_pw_arb.sv src/PageWalkReqArbiter.sv src/LoadSelector.sv src/LoadResultBuffer.sv src/TLB_fixed.sv src/BypassLSU.sv src/TValSelect.sv src/SoC.sv src/TLBMissQueue.sv src/ExternalAXISim.sv src/CacheWriteInterface.sv src/CacheReadInterface.sv src/RegFileRTL.sv src/BranchHandler.sv src/StoreDataIQ.sv src/StoreDataLoad.sv src/StoreQueueBackend.sv src/Scheduler.sv src/ResultFlagsSplit.sv src/InstrAligner.sv src/RFReadMux.sv src/CacheArbiter.sv src/MemRTL1RW.sv src/ExternalBus.sv src/ExternalBusMem.sv src/CacheLineManager.sv src/DataPrefetch.sv src/PrefetchPatternDetector.sv src/PrefetchIssuer.sv src/PrefetchExecutor.sv hardfloat/addRecFN.v hardfloat/compareRecFN.v hardfloat/divSqrtRecFN_small.v hardfloat/fNToRecFN.v hardfloat/HardFloat_primitives.v hardfloat/HardFloat_rawFN.v hardfloat/HardFloat_specialize.v hardfloat/iNToRecFN.v hardfloat/isSigNaNRecFN.v hardfloat/mulAddRecFN.v hardfloat/mulRecFN.v hardfloat/recFNToFN.v hardfloat/recFNToIN.v hardfloat/recFNToRecFN.v
+make[1]: 进入目录“/home/zoomin/codes/RISCV/SoomRV/obj_dir”
+make[1]: 对“default”无需做任何事。
+make[1]: 离开目录“/home/zoomin/codes/RISCV/SoomRV/obj_dir”
+- V e r i l a t i o n   R e p o r t: Verilator 5.042 2025-11-02 rev v5.042
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.036 s (elab=0.000, cvt=0.000, bld=0.035); cpu 0.001 s on 1 threads; alloced 16.711 MB
+❯ ./obj_dir/VTop --perfc --device-tree=test_programs/linux/device_tree.dtb --backup-file=soomrv.pw.backup test_programs/linux/linux_image.elf
+
+OpenSBI v1.2
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|___/_____|
+        | |
+        |_|
+
+Platform Name             : platform-name
+Platform Features         : medeleg
+Platform HART Count       : 1
+Platform IPI Device       : aclint-mswi
+Platform Timer Device     : aclint-mtimer @ 1000000Hz
+Platform Console Device   : uart8250
+Platform HSM Device       : ---
+Platform PMU Device       : ---
+Platform Reboot Device    : ---
+Platform Shutdown Device  : ---
+Platform Suspend Device   : ---
+Platform CPPC Device      : ---
+Firmware Base             : 0x80000000
+Firmware Size             : 192 KB
+Firmware RW Offset        : 0x20000
+Runtime SBI Version       : 1.0
+
+Domain0 Name              : root
+Domain0 Boot HART         : 0
+Domain0 HARTs             : 0*
+Domain0 Region00          : 0x11008000-0x1100bfff M: (I,R,W) S/U: ()
+Domain0 Region01          : 0x11000000-0x11007fff M: (I,R,W) S/U: ()
+Domain0 Region02          : 0x80020000-0x8002ffff M: (R,W) S/U: ()
+Domain0 Region03          : 0x80000000-0x8001ffff M: (R,X) S/U: ()
+Domain0 Region04          : 0x00000000-0xffffffff M: (R,W,X) S/U: (R,W,X)
+Domain0 Next Address      : 0x80400000
+Domain0 Next Arg1         : 0x82200000
+Domain0 Next Mode         : S-mode
+Domain0 SysReset          : yes
+Domain0 SysSuspend        : yes
+
+Boot HART ID              : 0
+Boot HART Domain          : root
+Boot HART Priv Version    : v1.12
+Boot HART Base ISA        : rv32imacx
+Boot HART ISA Extensions  : time
+Boot HART PMP Count       : 0
+Boot HART PMP Granularity : 0
+Boot HART PMP Address Bits: 0
+Boot HART MHPM Count      : 0
+Boot HART MIDELEG         : 0x00000222
+Boot HART MEDELEG         : 0x0000b109
+[    0.000000] Linux version 6.19.5 (zoomin@clstilmldy) (riscv32-buildroot-linux-gnu-gcc.br_real (Buildroot -g5aa438e-dirty) 14.3.0, GNU ld (GNU Binutils) 2.44) #2 Fri Mar  6 23:00:43 CST 2026
+[    0.000000] OF: fdt: Ignoring memory range 0x80000000 - 0x80400000
+[    0.000000] Machine model: riscv-minimal
+[    0.000000] SBI specification v1.0 detected
+[    0.000000] SBI implementation ID=0x1 Version=0x10002
+[    0.000000] SBI TIME extension detected
+[    0.000000] SBI IPI extension detected
+[    0.000000] SBI RFENCE extension detected
+[    0.000000] earlycon: uart8250 at MMIO 0x10000000 (options '1000000')
+[    0.000000] printk: legacy bootconsole [uart8250] enabled
+cycles:             8517314
+instret:            8388610 # 0.984889 IPC
+mispredicts:        120810 # 14.401671 MPKI
+branch mispredicts: 10910 # 0.714314%
+branches:           1527340
+frontend stalled:   7943818 # 23.316676%
+backend stalled:    11764338 # 34.530657%
+store stalled:      1201031 # 3.525263%
+load stalled:       4705727 # 13.812239%
+ROB stalled:        82103 # 0.240989%
+ 109594 # 91 ORD |    5846 #  5 BTK |    4626 #  4 BNT
+      5 #  0 RET |     689 #  1 IBR |      50 #  0 MEM
+[    0.000000] OF: reserved mem: Reserved memory: No reserved-memory node in the DT
+[    0.000000] Zone ranges:
+[    0.000000]   Normal   [mem 0x0000000080400000-0x000000008fffffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080400000-0x000000008fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000080400000-0x000000008fffffff]
+cycles:             3979162
+instret:            8388609 # 2.108135 IPC
+mispredicts:        22001 # 2.622723 MPKI
+branch mispredicts: 2083 # 0.147334%
+branches:           1413794
+frontend stalled:   1504957 # 9.455238%
+backend stalled:    3518323 # 22.104673%
+store stalled:      1086828 # 6.828247%
+load stalled:       924849 # 5.810576%
+ROB stalled:        493082 # 3.097901%
+  19850 # 90 ORD |     948 #  4 BTK |     702 #  3 BNT
+      0 #  0 RET |     482 #  2 IBR |      19 #  0 MEM
+[    0.000000] On node 0, zone Normal: 1024 pages in unavailable ranges
+[    0.000000] Falling back to deprecated "riscv,isa"
+[    0.000000] riscv: base ISA extensions acim
+[    0.000000] riscv: ELF capabilities acim
+[    0.000000] Ticket spinlock: enabled
+[    0.000000] Kernel command line: earlycon=uart8250,mmio,0x10000000,1000000 console=ttyS0
+[    0.000000] printk: log buffer data + meta data: 131072 + 409600 = 540672 bytes
+[    0.000000] Dentry cache hash table entries: 32768 (order: 5, 131072 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 16384 (order: 4, 65536 bytes, linear)
+[    0.000000] Virtual kernel memory layout:
+[    0.000000]       fixmap : 0x9c800000 - 0x9d000000   (8192 kB)
+[    0.000000]       pci io : 0x9d000000 - 0x9e000000   (  16 MB)
+[    0.000000]      vmemmap : 0x9e000000 - 0xa0000000   (  32 MB)
+[    0.000000]      vmalloc : 0xa0000000 - 0xc0000000   ( 512 MB)
+[    0.000000]       lowmem : 0xc0000000 - 0xcfc00000   ( 252 MB)
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 64512
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=1.
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] riscv-intc: 32 local interrupts mapped
+[    0.000000] clocksource: riscv_clocksource: mask: 0xffffffffffffffff max_cycles: 0x99c0f5e04, max_idle_ns: 440795204113 ns
+[    0.000014] sched_clock: 64 bits at 42MHz, resolution 24ns, wraps every 4398046511097ns
+[    0.002056] Console: colour dummy device 80x25
+[    0.002794] Calibrating delay loop (skipped), value calculated using timer frequency.. 83.33 BogoMIPS (lpj=416666)
+[    0.003261] pid_max: default: 32768 minimum: 301
+[    0.006985] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.007395] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.031975] ASID allocator disabled (0 bits)
+[    0.036278] Memory: 224856K/258048K available (4276K kernel code, 7700K rwdata, 4096K rodata, 9313K init, 222K bss, 32580K reserved, 0K cma-reserved)
+[    0.042267] devtmpfs: initialized
+[    0.064033] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    0.064651] posixtimers hash table entries: 512 (order: 2, 10240 bytes, linear)
+[    0.065254] futex hash table entries: 256 (8192 bytes on 1 NUMA nodes, total 8 KiB, linear).
+[    0.073555] cpuidle: using governor menu
+cycles:             7222970
+instret:            8388610 # 1.161380 IPC
+mispredicts:        108818 # 12.972113 MPKI
+branch mispredicts: 49175 # 3.553353%
+branches:           1383904
+frontend stalled:   6673392 # 23.097812%
+backend stalled:    7906081 # 27.364370%
+store stalled:      2199994 # 7.614575%
+load stalled:       3296519 # 11.409846%
+ROB stalled:        423278 # 1.465041%
+  58077 # 53 ORD |   20306 # 19 BTK |   14793 # 14 BNT
+    325 #  0 RET |   14745 # 14 IBR |     572 #  1 MEM
+[    0.203741] cpu0: Ratio of byte access time to unaligned word access is 0.00, unaligned accesses are slow
+[    0.234761] HugeTLB: registered 4.00 MiB page size, pre-allocated 0 pages
+[    0.235100] HugeTLB: 0 KiB vmemmap can be freed for a 4.00 MiB page
+[    0.248143] SCSI subsystem initialized
+[    0.251749] clocksource: Switched to clocksource riscv_clocksource
+cycles:             8944934
+instret:            8388610 # 0.937806 IPC
+mispredicts:        121669 # 14.504072 MPKI
+branch mispredicts: 56637 # 5.504028%
+branches:           1029010
+frontend stalled:   8653828 # 24.186394%
+backend stalled:    9164385 # 25.613339%
+store stalled:      3658729 # 10.225701%
+load stalled:       5612982 # 15.687600%
+ROB stalled:        297043 # 0.830199%
+  62478 # 51 ORD |   21686 # 18 BTK |   15674 # 13 BNT
+    584 #  0 RET |   19953 # 16 IBR |    1294 #  1 MEM
+[    0.448501] workingset: timestamp_bits=14 max_order=16 bucket_order=2
+[    0.467666] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 253)
+[    0.468025] io scheduler mq-deadline registered
+[    0.468301] io scheduler kyber registered
+[    0.469001] io scheduler bfq registered
+cycles:             8757364
+instret:            8388608 # 0.957892 IPC
+mispredicts:        127942 # 15.251875 MPKI
+branch mispredicts: 114072 # 8.024080%
+branches:           1421621
+frontend stalled:   8627037 # 24.627950%
+backend stalled:    10025455 # 28.620070%
+store stalled:      2934479 # 8.377175%
+load stalled:       4420229 # 12.618606%
+ROB stalled:        633586 # 1.808723%
+  10500 #  8 ORD |   50773 # 40 BTK |   42380 # 33 BNT
+    722 #  1 RET |   22108 # 17 IBR |    1459 #  1 MEM
+cycles:             8227885
+instret:            8388611 # 1.019534 IPC
+mispredicts:        143709 # 17.131442 MPKI
+branch mispredicts: 133035 # 8.745571%
+branches:           1521170
+frontend stalled:   7646567 # 23.233696%
+backend stalled:    9496392 # 28.854292%
+store stalled:      2464032 # 7.486833%
+load stalled:       4057176 # 12.327518%
+ROB stalled:        858702 # 2.609121%
+   7627 #  5 ORD |   64369 # 45 BTK |   54109 # 38 BNT
+    652 #  0 RET |   15805 # 11 IBR |    1147 #  1 MEM
+cycles:             8309543
+instret:            8388608 # 1.009515 IPC
+mispredicts:        151889 # 18.106580 MPKI
+branch mispredicts: 141120 # 9.427187%
+branches:           1496947
+frontend stalled:   7864758 # 23.661825%
+backend stalled:    9619885 # 28.942281%
+store stalled:      2516521 # 7.571178%
+load stalled:       4080367 # 12.276147%
+ROB stalled:        767974 # 2.310518%
+   7462 #  5 ORD |   67568 # 44 BTK |   59018 # 39 BNT
+    620 #  0 RET |   16039 # 11 IBR |    1182 #  1 MEM
+cycles:             8914106
+instret:            8388608 # 0.941049 IPC
+mispredicts:        122140 # 14.560223 MPKI
+branch mispredicts: 106422 # 8.531061%
+branches:           1247465
+frontend stalled:   9178988 # 25.742873%
+backend stalled:    10060351 # 28.214694%
+store stalled:      3132343 # 8.784793%
+load stalled:       4468036 # 12.530802%
+ROB stalled:        428035 # 1.200443%
+  12257 # 10 ORD |   42816 # 35 BTK |   39076 # 32 BNT
+    909 #  1 RET |   25607 # 21 IBR |    1475 #  1 MEM
+cycles:             9173536
+instret:            8388610 # 0.914436 IPC
+mispredicts:        119263 # 14.217254 MPKI
+branch mispredicts: 101380 # 8.122174%
+branches:           1248188
+frontend stalled:   9723673 # 26.499250%
+backend stalled:    10228146 # 27.874055%
+store stalled:      3205809 # 8.736568%
+load stalled:       4645747 # 12.660731%
+ROB stalled:        502094 # 1.368322%
+  14302 # 12 ORD |   39554 # 33 BTK |   34602 # 29 BNT
+    952 #  1 RET |   28302 # 24 IBR |    1551 #  1 MEM
+cycles:             7767150
+instret:            8388609 # 1.080011 IPC
+mispredicts:        136158 # 16.231297 MPKI
+branch mispredicts: 126653 # 8.634570%
+branches:           1466813
+frontend stalled:   7061700 # 22.729380%
+backend stalled:    8925858 # 28.729515%
+store stalled:      2343729 # 7.543723%
+load stalled:       3677978 # 11.838248%
+ROB stalled:        670669 # 2.158671%
+   6866 #  5 ORD |   57920 # 43 BTK |   55212 # 41 BNT
+    590 #  0 RET |   14525 # 11 IBR |    1045 #  1 MEM
+cycles:             8149345
+instret:            8388608 # 1.029360 IPC
+mispredicts:        140142 # 16.706228 MPKI
+branch mispredicts: 129689 # 8.693172%
+branches:           1491849
+frontend stalled:   7584117 # 23.266032%
+backend stalled:    9371255 # 28.748491%
+store stalled:      2453269 # 7.525970%
+load stalled:       4009647 # 12.300519%
+ROB stalled:        790424 # 2.424808%
+   7487 #  5 ORD |   60983 # 44 BTK |   54084 # 39 BNT
+    641 #  0 RET |   15790 # 11 IBR |    1157 #  1 MEM
+cycles:             8111069
+instret:            8388608 # 1.034217 IPC
+mispredicts:        143167 # 17.066836 MPKI
+branch mispredicts: 133196 # 8.831947%
+branches:           1508116
+frontend stalled:   7467773 # 23.017228%
+backend stalled:    9399537 # 28.971326%
+store stalled:      2397770 # 7.390425%
+load stalled:       3974442 # 12.250056%
+ROB stalled:        816089 # 2.515356%
+   7164 #  5 ORD |   63014 # 44 BTK |   56052 # 39 BNT
+    584 #  0 RET |   15231 # 11 IBR |    1122 #  1 MEM

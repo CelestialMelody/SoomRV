@@ -1,0 +1,162 @@
+❯ make external-tests-smoke
+python3 scripts/test_suite.py "external-tests/riscv-tests/isa" \
+        --categories rv32ui,rv32um,rv32uc --max-tests-per-category 8
+
+== category: rv32ui (8 tests) ==
+running external-tests/riscv-tests/isa/rv32ui-p-add: passed
+running external-tests/riscv-tests/isa/rv32ui-p-addi: passed
+running external-tests/riscv-tests/isa/rv32ui-p-and: passed
+running external-tests/riscv-tests/isa/rv32ui-p-andi: passed
+running external-tests/riscv-tests/isa/rv32ui-p-auipc: passed
+running external-tests/riscv-tests/isa/rv32ui-p-beq: passed
+running external-tests/riscv-tests/isa/rv32ui-p-bge: passed
+running external-tests/riscv-tests/isa/rv32ui-p-bgeu: passed
+
+== category: rv32um (8 tests) ==
+running external-tests/riscv-tests/isa/rv32um-p-div: passed
+running external-tests/riscv-tests/isa/rv32um-p-divu: passed
+running external-tests/riscv-tests/isa/rv32um-p-mul: passed
+running external-tests/riscv-tests/isa/rv32um-p-mulh: passed
+running external-tests/riscv-tests/isa/rv32um-p-mulhsu: passed
+running external-tests/riscv-tests/isa/rv32um-p-mulhu: passed
+running external-tests/riscv-tests/isa/rv32um-p-rem: passed
+running external-tests/riscv-tests/isa/rv32um-p-remu: passed
+
+== category: rv32uc (2 tests) ==
+running external-tests/riscv-tests/isa/rv32uc-p-rvc: passed
+running external-tests/riscv-tests/isa/rv32uc-v-rvc: passed
+
+all selected tests passed (18 total).
+❯ make external-tests-run
+python3 scripts/test_suite.py "external-tests/riscv-tests/isa"
+
+== category: rv32mi (16 tests) ==
+running external-tests/riscv-tests/isa/rv32mi-p-breakpoint: passed
+running external-tests/riscv-tests/isa/rv32mi-p-csr: passed
+running external-tests/riscv-tests/isa/rv32mi-p-illegal: passed
+running external-tests/riscv-tests/isa/rv32mi-p-instret_overflow: failed (rc=255)
+core   0: 0x80000120 (0x01428293) addi    t0, t0, 20
+core   0: 0x80000124 (0x30529073) csrw    mtvec, t0
+core   0: 0x80000128 (0x30205073) csrwi   medeleg, 0
+core   0: 0x8000012c (0x30305073) csrwi   mideleg, 0
+core   0: 0x80000130 (0x00000193) li      gp, 0
+core   0: 0x80000134 (0x00000297) auipc   t0, 0x0
+core   0: 0x80000138 (0xed028293) addi    t0, t0, -304
+core   0: 0x8000013c (0x30529073) csrw    mtvec, t0
+core   0: 0x80000140 (0x00100513) li      a0, 1
+core   0: 0x80000144 (0x01f51513) slli    a0, a0, 31
+core   0: 0x80000148 (0x00054c63) bltz    a0, pc + 24
+0000000000000000000000000000000000000000000000000000000000000001
+core   0: 0x80000160 (0x00000293) li      t0, 0
+core   0: 0x80000164 (0x00028a63) beqz    t0, pc + 20
+0000000000000000000000000000000000000000000000000000000000000011
+core   0: 0x80000178 (0x30005073) csrwi   mstatus, 0
+core   0: 0x8000017c (0x00002537) lui     a0, 0x2
+core   0: 0x80000180 (0x80050513) addi    a0, a0, -2048
+core   0: 0x80000184 (0x30052073) csrs    mstatus, a0
+core   0: 0x80000188 (0x00000297) auipc   t0, 0x0
+core   0: 0x8000018c (0x01428293) addi    t0, t0, 20
+core   0: 0x80000190 (0x34129073) csrw    mepc, t0
+core   0: 0x80000194 (0xf1402573) csrr    a0, mhartid
+core   0: 0x80000198 (0x30200073) mret
+core   0: 0x8000019c (0x00000297) auipc   t0, 0x0
+core   0: 0x800001a0 (0x01028293) addi    t0, t0, 16
+core   0: 0x800001a4 (0x305292f3) csrrw   t0, mtvec, t0
+core   0: 0x800001a8 (0x32027073) csrci   mcountinhibit, 4
+core   0: 0x800001ac (0x30529073) csrw    mtvec, t0
+core   0: 0x800001b0 (0x00200193) li      gp, 2
+core   0: 0x800001b4 (0xb0205073) csrwi   minstret, 0
+mstatus=00000080 mepc=8000019c mcause=00000002 mtvec=80000004 mideleg=00000000 medeleg=00000000 mie=00000000 mip=00000000
+
+running external-tests/riscv-tests/isa/rv32mi-p-lh-misaligned: passed
+running external-tests/riscv-tests/isa/rv32mi-p-lw-misaligned: passed
+running external-tests/riscv-tests/isa/rv32mi-p-ma_addr: passed
+running external-tests/riscv-tests/isa/rv32mi-p-ma_fetch: passed
+running external-tests/riscv-tests/isa/rv32mi-p-mcsr: passed
+running external-tests/riscv-tests/isa/rv32mi-p-pmpaddr: failed (rc=0)
+0000000000000000000000000000000000000000000000000000000000011000
+core   0: 0x80000020 (0x00000f17) auipc   t5, 0x0
+core   0: 0x80000024 (0x290f0f13) addi    t5, t5, 656
+core   0: 0x80000028 (0x000f0463) beqz    t5, pc + 8
+0000000000000000000000000000000000000000000000000000000000110000
+core   0: 0x8000002c (0x000f0067) jr      t5
+core   0: 0x800002b0 (0xfd1ff06f) j       pc - 0x30
+core   0: 0x80000280 (0x0ff0000f) fence   iorw,iorw
+core   0: 0x80000284 (0x00018063) beqz    gp, pc + 0
+0000000000000000000000000000000000000000000000000000000001100000
+core   0: 0x80000288 (0x00119193) slli    gp, gp, 1
+core   0: 0x8000028c (0x0011e193) ori     gp, gp, 1
+core   0: 0x80000290 (0x05d00893) li      a7, 93
+core   0: 0x80000294 (0x00018513) mv      a0, gp
+core   0: 0x80000298 (0x00000073) ecall
+core   0: exception trap_machine_ecall, epc 0x80000298
+core   0: 0x80000004 (0x34202f73) csrr    t5, mcause
+core   0: 0x80000008 (0x00800f93) li      t6, 8
+core   0: 0x8000000c (0x03ff0a63) beq     t5, t6, pc + 52
+0000000000000000000000000000000000000000000000000000000011000000
+core   0: 0x80000010 (0x00900f93) li      t6, 9
+core   0: 0x80000014 (0x03ff0663) beq     t5, t6, pc + 44
+0000000000000000000000000000000000000000000000000000000110000000
+core   0: 0x80000018 (0x00b00f93) li      t6, 11
+core   0: 0x8000001c (0x03ff0263) beq     t5, t6, pc + 36
+0000000000000000000000000000000000000000000000000000001100000001
+core   0: 0x80000040 (0x00001f17) auipc   t5, 0x1
+core   0: 0x80000044 (0xfc3f2023) sw      gp, -64(t5)
+80001000 -> 80001000
+core   0: 0x80000048 (0x00001f17) auipc   t5, 0x1
+core   0: 0x8000004c (0xfa0f2e23) sw      zero, -68(t5)
+80001004 -> 80001004
+
+running external-tests/riscv-tests/isa/rv32mi-p-sbreak: passed
+running external-tests/riscv-tests/isa/rv32mi-p-scall: passed
+running external-tests/riscv-tests/isa/rv32mi-p-sh-misaligned: passed
+running external-tests/riscv-tests/isa/rv32mi-p-shamt: passed
+running external-tests/riscv-tests/isa/rv32mi-p-sw-misaligned: passed
+running external-tests/riscv-tests/isa/rv32mi-p-zicntr: passed
+
+== category: rv32si (6 tests) ==
+running external-tests/riscv-tests/isa/rv32si-p-csr: passed
+running external-tests/riscv-tests/isa/rv32si-p-dirty: passed
+running external-tests/riscv-tests/isa/rv32si-p-ma_fetch: passed
+running external-tests/riscv-tests/isa/rv32si-p-sbreak: passed
+running external-tests/riscv-tests/isa/rv32si-p-scall: passed
+running external-tests/riscv-tests/isa/rv32si-p-wfi: passed
+
+== category: rv32ui (82 tests) ==
+running external-tests/riscv-tests/isa/rv32ui-p-add: passed
+running external-tests/riscv-tests/isa/rv32ui-p-addi: passed
+running external-tests/riscv-tests/isa/rv32ui-p-and: passed
+running external-tests/riscv-tests/isa/rv32ui-p-andi: passed
+running external-tests/riscv-tests/isa/rv32ui-p-auipc: passed
+running external-tests/riscv-tests/isa/rv32ui-p-beq: passed
+running external-tests/riscv-tests/isa/rv32ui-p-bge: passed
+running external-tests/riscv-tests/isa/rv32ui-p-bgeu: passed
+running external-tests/riscv-tests/isa/rv32ui-p-blt: passed
+running external-tests/riscv-tests/isa/rv32ui-p-bltu: passed
+running external-tests/riscv-tests/isa/rv32ui-p-bne: passed
+running external-tests/riscv-tests/isa/rv32ui-p-fence_i: passed
+running external-tests/riscv-tests/isa/rv32ui-p-jal: passed
+running external-tests/riscv-tests/isa/rv32ui-p-jalr: passed
+running external-tests/riscv-tests/isa/rv32ui-p-lb: passed
+running external-tests/riscv-tests/isa/rv32ui-p-lbu: passed
+^Crunning external-tests/riscv-tests/isa/rv32ui-p-ld_st:Traceback (most recent call last):
+  File "/home/zoomin/codes/RISCV/SoomRV/scripts/test_suite.py", line 203, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/zoomin/codes/RISCV/SoomRV/scripts/test_suite.py", line 178, in main
+    result = run_once(str(binary), test, trace_start=None)
+  File "/home/zoomin/codes/RISCV/SoomRV/scripts/test_suite.py", line 120, in run_once
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+  File "/usr/lib/python3.14/subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1220, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2152, in _communicate
+    ready = selector.select(timeout)
+  File "/usr/lib/python3.14/selectors.py", line 398, in select
+    fd_event_list = self._selector.poll(timeout)
+KeyboardInterrupt
+make: *** [Makefile:214: external-tests-run] 中断
+

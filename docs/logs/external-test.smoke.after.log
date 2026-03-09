@@ -1,0 +1,35 @@
+python3 scripts/test_suite.py "external-tests/riscv-tests/isa" \
+	--categories rv32ui,rv32um,rv32uc --max-tests-per-category 8 \
+	--timeout-sec 60 \
+	--heartbeat-sec 10
+info: using objcopy fallback shim for riscv32-unknown-elf-objcopy
+
+== category: rv32ui (8 tests) ==
+running external-tests/riscv-tests/isa/rv32ui-p-add: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32ui-p-addi: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32ui-p-and: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32ui-p-andi: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32ui-p-auipc: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32ui-p-beq: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32ui-p-bge: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32ui-p-bgeu: passed (0.6s)
+
+== category: rv32um (8 tests) ==
+running external-tests/riscv-tests/isa/rv32um-p-div: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32um-p-divu: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32um-p-mul: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32um-p-mulh: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32um-p-mulhsu: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32um-p-mulhu: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32um-p-rem: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32um-p-remu: passed (0.6s)
+
+== category: rv32uc (2 tests) ==
+running external-tests/riscv-tests/isa/rv32uc-p-rvc: passed (0.6s)
+running external-tests/riscv-tests/isa/rv32uc-v-rvc: passed (0.8s)
+
+skipped unsupported tests:
+  - external-tests/riscv-tests/isa/rv32mi-p-instret_overflow (known minstret/cosim semantic mismatch)
+  - external-tests/riscv-tests/isa/rv32mi-p-pmpaddr (PMP not implemented/enabled in current SoomRV configuration)
+
+all selected tests passed (18 total).
