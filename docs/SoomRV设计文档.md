@@ -300,9 +300,6 @@ end
 系统层遵循“Top 最小化、SoC 汇聚、MemoryController 事务化”的分工：
 `Top` 只连接 SoC 与外部 AXI 仿真；`SoC` 组织核内 cache/memc 接口；`MemoryController` 负责 cache line 事务与冲突仲裁。
 
-![关键反馈环](E全局总干/3loop.png)
-*图 2-6 分支反馈、访存前递与反压传播三条关键闭环（概念示意图）。*
-
 ```systemverilog
 // src/Top.sv:L11-L13,L47-L50,L85-L90
 assign OUT_halt = SOC_poweroff || SOC_reboot;
