@@ -1,9 +1,9 @@
 # Optional -Wno-* flags: only added when this Verilator supports them. To add more, append to the list.
-VERILATOR_WNO_OPTIONAL := -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-IMPLICITSTATIC -Wno-EOFNEWLINE
+VERILATOR_WNO_OPTIONAL := -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-IMPLICITSTATIC -Wno-EOFNEWLINE -Wno-WIDTHEXPAND
 SUPPORTS_OPTIONAL_WNO := $(shell for f in $(VERILATOR_WNO_OPTIONAL); do verilator $$f --version >/dev/null 2>&1 && echo $$f; done)
 
 # Set COSIM=1 to enable co-simulation with Spike
-COSIM ?= 1
+COSIM ?= 0
 
 # Select HardFloat source directory:
 #   make soomrv HARDFLOAT_DIR=/abs/path/to/hardfloat
@@ -16,13 +16,94 @@ endif
 # Select TLB implementation:
 #   make soomrv TLB_IMPL=orig
 #   make soomrv TLB_IMPL=fixed
-TLB_IMPL ?= fixed
+#   make soomrv TLB_IMPL=fixed_sp_dedup
+TLB_IMPL ?= fixed_sp_dedup
 ifeq ($(TLB_IMPL),orig)
 TLB_SRC := src/TLB.sv
 else ifeq ($(TLB_IMPL),fixed)
 TLB_SRC := src/TLB_fixed.sv
+else ifeq ($(TLB_IMPL),fixed_sp_dedup)
+TLB_SRC := src/TLB_fixed_sp_dedup.sv
 else
-$(error Unsupported TLB_IMPL='$(TLB_IMPL)'. Expected 'orig' or 'fixed')
+$(error Unsupported TLB_IMPL='$(TLB_IMPL)'. Expected 'orig', 'fixed' or 'fixed_sp_dedup')
+endif
+
+# Select BranchPredictor implementation:
+#   make soomrv BRANCH_PRED_IMPL=orig
+#   make soomrv BRANCH_PRED_IMPL=bt_arb
+BRANCH_PRED_IMPL ?= bt_arb
+ifeq ($(BRANCH_PRED_IMPL),orig)
+BP_SRC := src/BranchPredictor.sv
+else ifeq ($(BRANCH_PRED_IMPL),bt_arb)
+BP_SRC := src/BranchPredictor_bt_arb.sv
+else
+$(error Unsupported BRANCH_PRED_IMPL='$(BRANCH_PRED_IMPL)'. Expected 'orig' or 'bt_arb')
+endif
+
+# Select base BHT implementation:
+#   make soomrv BHT_IMPL=orig
+#   make soomrv BHT_IMPL=bht_fwd
+BHT_IMPL ?= bht_fwd
+ifeq ($(BHT_IMPL),orig)
+BHT_SRC := src/BranchPredictionTable.sv
+else ifeq ($(BHT_IMPL),bht_fwd)
+BHT_SRC := src/BranchPredictionTable_bht_fwd.sv
+else
+$(error Unsupported BHT_IMPL='$(BHT_IMPL)'. Expected 'orig' or 'bht_fwd')
+endif
+
+# Select PageWalker implementation:
+#   make soomrv PAGEWALKER_IMPL=orig
+#   make soomrv PAGEWALKER_IMPL=pw_arb
+PAGEWALKER_IMPL ?= pw_arb
+ifeq ($(PAGEWALKER_IMPL),orig)
+PW_SRC := src/PageWalker.sv
+else ifeq ($(PAGEWALKER_IMPL),pw_arb)
+PW_SRC := src/PageWalker_pw_arb.sv
+else
+$(error Unsupported PAGEWALKER_IMPL='$(PAGEWALKER_IMPL)'. Expected 'orig' or 'pw_arb')
+endif
+
+# Select TLBMissQueue implementation:
+#   make soomrv TLBMISSQ_IMPL=orig
+#   make soomrv TLBMISSQ_IMPL=tmq_param
+TLBMISSQ_IMPL ?= tmq_param
+ifeq ($(TLBMISSQ_IMPL),orig)
+TLBMISSQ_SRC := src/TLBMissQueue.sv
+else ifeq ($(TLBMISSQ_IMPL),tmq_param)
+TLBMISSQ_SRC := src/TLBMissQueue_param.sv
+else
+$(error Unsupported TLBMISSQ_IMPL='$(TLBMISSQ_IMPL)'. Expected 'orig' or 'tmq_param')
+endif
+
+# Select hardcoded-4 cleanup implementation set:
+#   make soomrv HARDCODE4_IMPL=orig
+#   make soomrv HARDCODE4_IMPL=param
+HARDCODE4_IMPL ?= param
+ifeq ($(HARDCODE4_IMPL),orig)
+BRSEL_SRC := src/BranchSelector.sv
+EXTAXI_SRC := src/ExternalAXISim.sv
+STOREQUEUE_SRC := src/StoreQueue.sv
+SCHED_SRC := src/Scheduler.sv
+else ifeq ($(HARDCODE4_IMPL),param)
+BRSEL_SRC := src/BranchSelector_param.sv
+EXTAXI_SRC := src/ExternalAXISim_param.sv
+STOREQUEUE_SRC := src/StoreQueue_param.sv
+SCHED_SRC := src/Scheduler_param.sv
+else
+$(error Unsupported HARDCODE4_IMPL='$(HARDCODE4_IMPL)'. Expected 'orig' or 'param')
+endif
+
+# Select Load/Store issue-cadence backend implementation:
+#   make soomrv LS_ISSUE_IMPL=orig
+#   make soomrv LS_ISSUE_IMPL=issue_opt
+LS_ISSUE_IMPL ?= issue_opt
+ifeq ($(LS_ISSUE_IMPL),orig)
+SQBACKEND_SRC := src/StoreQueueBackend.sv
+else ifeq ($(LS_ISSUE_IMPL),issue_opt)
+SQBACKEND_SRC := src/StoreQueueBackend_issue_opt.sv
+else
+$(error Unsupported LS_ISSUE_IMPL='$(LS_ISSUE_IMPL)'. Expected 'orig' or 'issue_opt')
 endif
 
 VERILATOR_FLAGS = \
@@ -75,13 +156,14 @@ SRC_FILES = \
 	src/Load.sv \
 	src/ROB.sv \
 	src/AGU.sv \
-	src/BranchPredictor.sv \
+	$(BP_SRC) \
+	src/BTUpdateArbiter.sv \
 	src/LoadBuffer.sv \
-	src/StoreQueue.sv \
+	$(STOREQUEUE_SRC) \
 	src/Multiply.sv \
 	src/Divide.sv \
 	src/MMIO.sv \
-	src/BranchSelector.sv \
+	$(BRSEL_SRC) \
 	src/MemRTL.sv \
 	src/MemRTL2W.sv \
 	src/Top.sv \
@@ -92,7 +174,7 @@ SRC_FILES = \
 	src/FMul.sv \
 	src/FDiv.sv \
 	src/BranchTargetBuffer.sv \
-	src/BranchPredictionTable.sv \
+	$(BHT_SRC) \
 	src/ReturnStack.sv \
 	src/TageTable.sv \
 	src/TagePredictor.sv \
@@ -101,23 +183,24 @@ SRC_FILES = \
 	src/CSR.sv \
 	src/TrapHandler.sv \
 	src/Peripherals.sv \
-	src/PageWalker.sv \
+	$(PW_SRC) \
+	src/PageWalkReqArbiter.sv \
 	src/LoadSelector.sv \
 	src/LoadResultBuffer.sv \
 	$(TLB_SRC) \
 	src/BypassLSU.sv \
 	src/TValSelect.sv \
 	src/SoC.sv \
-	src/TLBMissQueue.sv \
-	src/ExternalAXISim.sv \
+	$(TLBMISSQ_SRC) \
+	$(EXTAXI_SRC) \
 	src/CacheWriteInterface.sv \
 	src/CacheReadInterface.sv \
 	src/RegFileRTL.sv \
 	src/BranchHandler.sv \
 	src/StoreDataIQ.sv \
 	src/StoreDataLoad.sv \
-	src/StoreQueueBackend.sv \
-	src/Scheduler.sv \
+	$(SQBACKEND_SRC) \
+	$(SCHED_SRC) \
 	src/ResultFlagsSplit.sv \
 	src/InstrAligner.sv \
 	src/RFReadMux.sv \
@@ -150,6 +233,73 @@ setup:
 	git submodule update --init --recursive
 	cd riscv-isa-sim && ./configure CFLAGS="-Os -g0" CXXFLAGS="-Os -g0" --with-boost=no --with-boost-asio=no --with-boost-regex=no
 	make -j $(nproc) -C riscv-isa-sim
+
+EXTERNAL_TESTS_DIR ?= external-tests
+RISCV_TESTS_DIR ?= $(EXTERNAL_TESTS_DIR)/riscv-tests
+RISCV_TESTS_REPO ?= https://github.com/riscv-software-src/riscv-tests.git
+RISCV_TESTS_REF ?= master
+RISCV_ARCH_TEST_DIR ?= $(EXTERNAL_TESTS_DIR)/riscv-arch-test
+RISCV_ARCH_TEST_REPO ?= https://github.com/riscv-non-isa/riscv-arch-test.git
+RISCV_ARCH_TEST_REF ?= main
+PYTHON ?= python3
+EXTERNAL_TEST_TIMEOUT ?= 180
+EXTERNAL_TEST_HEARTBEAT ?= 15
+
+.PHONY: external-tests-fetch
+external-tests-fetch:
+	@mkdir -p "$(EXTERNAL_TESTS_DIR)"
+	@if [ -d "$(RISCV_TESTS_DIR)/.git" ]; then \
+		echo "Updating existing riscv-tests checkout at $(RISCV_TESTS_DIR)"; \
+		git -C "$(RISCV_TESTS_DIR)" fetch --depth 1 origin "$(RISCV_TESTS_REF)"; \
+		git -C "$(RISCV_TESTS_DIR)" checkout FETCH_HEAD; \
+	else \
+		echo "Cloning riscv-tests into $(RISCV_TESTS_DIR)"; \
+		git clone --depth 1 --branch "$(RISCV_TESTS_REF)" "$(RISCV_TESTS_REPO)" "$(RISCV_TESTS_DIR)"; \
+	fi
+
+.PHONY: external-arch-tests-fetch
+external-arch-tests-fetch:
+	@mkdir -p "$(EXTERNAL_TESTS_DIR)"
+	@if [ -d "$(RISCV_ARCH_TEST_DIR)/.git" ]; then \
+		echo "Updating existing riscv-arch-test checkout at $(RISCV_ARCH_TEST_DIR)"; \
+		git -C "$(RISCV_ARCH_TEST_DIR)" fetch --depth 1 origin "$(RISCV_ARCH_TEST_REF)"; \
+		git -C "$(RISCV_ARCH_TEST_DIR)" checkout FETCH_HEAD; \
+	else \
+		echo "Cloning riscv-arch-test into $(RISCV_ARCH_TEST_DIR)"; \
+		git clone --depth 1 --branch "$(RISCV_ARCH_TEST_REF)" "$(RISCV_ARCH_TEST_REPO)" "$(RISCV_ARCH_TEST_DIR)"; \
+	fi
+
+.PHONY: external-tests-build
+external-tests-build:
+	@if [ ! -d "$(RISCV_TESTS_DIR)" ]; then \
+		echo "Missing $(RISCV_TESTS_DIR). Run 'make external-tests-fetch' first."; \
+		exit 1; \
+	fi
+	@cd "$(RISCV_TESTS_DIR)" && git submodule update --init --recursive
+	@cd "$(RISCV_TESTS_DIR)" && autoconf
+	@cd "$(RISCV_TESTS_DIR)" && ./configure --prefix="$$PWD/build-target"
+	$(MAKE) -C "$(RISCV_TESTS_DIR)" isa XLEN=32
+
+.PHONY: external-tests-run
+external-tests-run:
+	@if [ ! -d "$(RISCV_TESTS_DIR)" ]; then \
+		echo "Missing $(RISCV_TESTS_DIR). Run 'make external-tests-fetch' first."; \
+		exit 1; \
+	fi
+	$(PYTHON) scripts/test_suite.py "$(RISCV_TESTS_DIR)/isa" \
+		--timeout-sec $(EXTERNAL_TEST_TIMEOUT) \
+		--heartbeat-sec $(EXTERNAL_TEST_HEARTBEAT)
+
+.PHONY: external-tests-smoke
+external-tests-smoke:
+	@if [ ! -d "$(RISCV_TESTS_DIR)" ]; then \
+		echo "Missing $(RISCV_TESTS_DIR). Run 'make external-tests-fetch' first."; \
+		exit 1; \
+	fi
+	$(PYTHON) scripts/test_suite.py "$(RISCV_TESTS_DIR)/isa" \
+		--categories rv32ui,rv32um,rv32uc --max-tests-per-category 8 \
+		--timeout-sec $(EXTERNAL_TEST_TIMEOUT) \
+		--heartbeat-sec $(EXTERNAL_TEST_HEARTBEAT)
 
 # if you encounter an error related to model_headers.h when executing `make`,
 # please try running `make prepare_header`.

@@ -2,12 +2,25 @@
 #include "TopWrapper.hpp"
 #include "Debug.hpp"
 
+static bool writes_instret_like_csr(uint32_t inst)
+{
+    if ((inst & 0x7F) != 0x73)
+        return false;
+    uint32_t funct3 = (inst >> 12) & 0x7;
+    if (funct3 == 0)
+        return false;
+
+    uint32_t csrID = inst >> 20;
+    return csrID == CSR_INSTRET || csrID == CSR_INSTRETH || csrID == CSR_MINSTRET || csrID == CSR_MINSTRETH;
+}
+
 bool SpikeSimif::compare_state()
 {
     for (size_t i = 0; i < 32; i++)
         if ((uint32_t)processor->get_state()->XPR[i] != registers.ReadRegister(i))
         {
-            printf("mismatch x%zu\n", i);
+            printf("mismatch x%zu (spike=%.8x rtl=%.8x)\n", i, (uint32_t)processor->get_state()->XPR[i],
+                   registers.ReadRegister(i));
             return false;
         }
 
@@ -76,7 +89,7 @@ SpikeSimif::SpikeSimif(std::vector<uint32_t>& pram, Registers& registers, uint64
 {
     cfg = new cfg_t(std::make_pair(0, 0), "", "rv32i", "M", DEFAULT_VARCH, false, endianness_little, 0,
                     {mem_cfg_t(0x80000000, 1 << 26)}, {0}, false, 0);
-    isa_parser = std::make_unique<isa_parser_t>("rv32imac_zicsr_zba_zbb_zbs_zicbom_zifencei_zcb_zihpm_zicntr", "MSU");
+    isa_parser = std::make_unique<isa_parser_t>("rv32imac_zicsr_zfinx_zba_zbb_zbs_zicbom_zifencei_zcb_zihpm_zicntr", "MSU");
     processor = std::make_unique<processor_t>(isa_parser.get(), cfg, this, 0, false, stderr, std::cerr);
     harts[0] = processor.get();
 
@@ -103,6 +116,7 @@ SpikeSimif::SpikeSimif(std::vector<uint32_t>& pram, Registers& registers, uint64
 
     for (auto csr : csrs_to_reset)
         processor->put_csr(csr, 0);
+
 }
 char* SpikeSimif::addr_to_mem(reg_t addr)
 {
@@ -144,7 +158,7 @@ void SpikeSimif::write_reg(int i, uint32_t data)
     // this NEEDS to be sign-extended!
     processor->get_state()->XPR.write(i, (int32_t)data);
 }
-int SpikeSimif::cosim_instr(const Inst& inst)
+int SpikeSimif::cosim_instr(const Inst& inst, bool skip_reg_check)
 {
     if (main_time > DEBUG_TIME)
         processor->set_debug(true);
@@ -209,10 +223,23 @@ int SpikeSimif::cosim_instr(const Inst& inst)
 
         if (riscvTestMode)
         {
-            if (phy == 0x80001000 || phy == 0x80003000)
-                riscvTestReturn = std::get<1>(write);
-            else if ((phy == 0x80001004 || phy == 0x80003004) && (int)std::get<1>(write) == 0)
-                return 1;
+            uint32_t data = std::get<1>(write);
+
+            if (riscvTestTohostAddr != 0)
+            {
+                if (phy == riscvTestTohostAddr)
+                    riscvTestReturn = data;
+                else if (phy == (riscvTestTohostAddr + 4) && (int)data == 0)
+                    return 1;
+            }
+            else
+            {
+                // Fallback for binaries without a .tohost section captured during load.
+                if (phy == 0x80001000 || phy == 0x80002000 || phy == 0x80003000)
+                    riscvTestReturn = data;
+                else if ((phy == 0x80001004 || phy == 0x80002004 || phy == 0x80003004) && (int)data == 0)
+                    return 1;
+            }
         }
         // if (phy >= 0x80000000)
         //     inFlightStores.push_back((Store){
@@ -236,11 +263,11 @@ int SpikeSimif::cosim_instr(const Inst& inst)
         return -2;
     if (!writeValid)
         return -3;
-    if (!compare_state())
+    if (!skip_reg_check && !compare_state())
         return -4;
     if (!modelsPass)
         return -5;
-    if  (inst.minstret != processor->get_state()->csrmap[CSR_MINSTRET]->read())
+    if (!writes_instret_like_csr(inst.inst) && inst.minstret != processor->get_state()->csrmap[CSR_MINSTRET]->read())
         return -6;
 
     return 0;

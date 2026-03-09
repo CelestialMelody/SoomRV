@@ -923,8 +923,10 @@ always_ff@(posedge clk /*or posedge rst*/) begin
                                     mstatus.spp <= temp.spp;
                                     mstatus.mpp <= temp.mpp;
 
-                                    mstatus.fs_ <= temp.fs_;
-                                    mstatus.sd <= |temp.fs_;
+                                    // Zfinx has FCSR but no FP register file state.
+                                    // Keep FS/SD hardwired to 0 to match Spike's zfinx behavior.
+                                    mstatus.fs_ <= 0;
+                                    mstatus.sd <= 0;
                                 end
 
                                 CSR_mcycle: mcycle[31:0] <= wdata;

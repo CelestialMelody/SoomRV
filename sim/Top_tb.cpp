@@ -13,8 +13,10 @@
 #include "model_headers.h"
 #include <array>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <getopt.h>
+#include <initializer_list>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -56,6 +58,7 @@ struct
     FetchPacket fetch1;
     int curCycInstRet = 0;
 } state;
+bool resultValid[1 << SqN_Bits] = {};
 
 double sc_time_stamp()
 {
@@ -71,6 +74,82 @@ void WriteRegister(uint32_t rid, uint32_t val)
     simif.write_reg(rid, val);
 #endif
     registers.WriteRegister(rid, val);
+}
+
+static std::string QuoteShellArg(const std::string& arg)
+{
+    std::string quoted = "'";
+    for (char c : arg)
+    {
+        if (c == '\'')
+            quoted += "'\\''";
+        else
+            quoted += c;
+    }
+    quoted += "'";
+    return quoted;
+}
+
+static bool ToolExists(const std::string& tool)
+{
+    std::string cmd = "command -v " + QuoteShellArg(tool) + " >/dev/null 2>&1";
+    return system(cmd.c_str()) == 0;
+}
+
+static std::string PickFirstTool(std::initializer_list<const char*> tools)
+{
+    for (const char* tool : tools)
+    {
+        if (ToolExists(tool))
+            return tool;
+    }
+    return "";
+}
+
+static void RunChecked(const std::string& cmd, const char* what)
+{
+    int rc = system(cmd.c_str());
+    if (rc != 0)
+    {
+        fprintf(stderr, "ERROR: failed to %s\ncommand: %s\n", what, cmd.c_str());
+        abort();
+    }
+}
+
+static constexpr uint32_t kSimMemBytes = (1u << 24);
+
+static bool ExtractStoreWord(const ST_UOp& stUOp, uint32_t wordAddr, uint32_t& value)
+{
+    if (!stUOp.valid || stUOp.isMMIO || stUOp.isMgmt)
+        return false;
+
+    if ((wordAddr & 0x3) != 0)
+        return false;
+
+    if (wordAddr < stUOp.addr)
+        return false;
+
+    uint32_t offset = wordAddr - stUOp.addr;
+    if (offset > 12)
+        return false;
+
+    uint32_t endOffset = offset + 3;
+    if (endOffset >= 16)
+        return false;
+
+    for (uint32_t i = 0; i < 4; i++)
+    {
+        if (((stUOp.wmask >> (offset + i)) & 0x1) == 0)
+            return false;
+    }
+
+    value = 0;
+    for (uint32_t i = 0; i < 4; i++)
+    {
+        uint32_t byteVal = stUOp.data.range((offset + i) * 8 + 7, (offset + i) * 8).to_uint64();
+        value |= byteVal << (8 * i);
+    }
+    return true;
 }
 
 static bool kbhit()
@@ -121,7 +200,7 @@ void Exit(int code)
 
 void LogFlush(Inst& inst);
 
-void LogCommit(Inst& inst)
+void LogCommit(Inst& inst, bool skipRegCheck)
 {
 #ifdef COSIM
     if (simif.doRestore)
@@ -150,7 +229,7 @@ void LogCommit(Inst& inst)
 
 #ifdef COSIM
         uint32_t startPC = simif.get_pc();
-        if (int err = simif.cosim_instr(inst))
+        if (int err = simif.cosim_instr(inst, skipRegCheck))
         {
             if (err == 1)
             {
@@ -340,7 +419,16 @@ void LogInstructions()
             uint32_t tag = resultUOp.tagDst;
             uint32_t result = resultUOp.result;
             if (tag < LEN(state.phyRF))
+            {
                 state.phyRF[tag] = result;
+                // Propagate WB value to all in-flight uops currently bound to this tag.
+                for (size_t sqn = 0; sqn < LEN(state.insts); sqn++)
+                    if (state.insts[sqn].valid && state.insts[sqn].tag == tag)
+                    {
+                        state.insts[sqn].result = result;
+                        resultValid[sqn] = true;
+                    }
+            }
         }
     }
 
@@ -375,11 +463,58 @@ void LogInstructions()
                 state.insts[sqn].incMinstret = (core->ROB_perfcInfo & (1 << i));
 
                 state.lastComSqN = curComSqN;
-                if (state.insts[sqn].tag < LEN(state.phyRF))
-                    state.insts[sqn].result = state.phyRF[state.insts[sqn].tag];
-                LogCommit(state.insts[sqn]);
+                if (!resultValid[sqn])
+                {
+                    constexpr uint32_t tagSelBit = 1u << (Tag_Bits - 1);
+                    constexpr uint32_t tagImmMask = tagSelBit - 1;
+                    if (state.insts[sqn].tag & tagSelBit)
+                    {
+                        // Immediate tags carry a sign-extended literal instead of a PRF index.
+                        uint32_t imm = state.insts[sqn].tag & tagImmMask;
+                        state.insts[sqn].result = ((int32_t)(imm << (32 - (Tag_Bits - 1)))) >> (32 - (Tag_Bits - 1));
+                    }
+                    else if (state.insts[sqn].tag < LEN(state.phyRF))
+                    {
+                        state.insts[sqn].result = state.phyRF[state.insts[sqn].tag];
+                    }
+                }
+
+                bool overwrittenInSameCycle = false;
+                if (state.insts[sqn].rd != 0 && state.insts[sqn].flags < 6)
+                {
+                    for (size_t j = i + 1; j < LEN(core->comUOps); j++)
+                    {
+                        if ((core->comUOps[j] & 1) && !core->mispredFlush)
+                        {
+                            auto nextComUOp = GET(CommitUOp, &core->comUOps[j]);
+                            int nextSqN = nextComUOp.sqN;
+                            bool sameRdWrite = state.insts[nextSqN].rd == state.insts[sqn].rd &&
+                                               state.insts[nextSqN].flags < 6;
+                            bool sameTagWrite =
+                                state.insts[nextSqN].tag == state.insts[sqn].tag && state.insts[nextSqN].tag != 0;
+                            if (sameRdWrite || sameTagWrite)
+                            {
+                                overwrittenInSameCycle = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Some dead-write elimination paths allow younger uops to share a destination tag.
+                    // In that case, the older architectural intermediate GPR state is not observable.
+                    uint32_t nextSqN = (sqn + 1) & SqN_Mask;
+                    while (!overwrittenInSameCycle && nextSqN != state.nextSqN)
+                    {
+                        if (state.insts[nextSqN].valid && state.insts[nextSqN].tag == state.insts[sqn].tag)
+                            overwrittenInSameCycle = true;
+                        nextSqN = (nextSqN + 1) & SqN_Mask;
+                    }
+                }
+
+                LogCommit(state.insts[sqn], overwrittenInSameCycle);
                 mostRecentPC = state.insts[sqn].pc;
                 state.insts[sqn].valid = false;
+                resultValid[sqn] = false;
             }
         }
     }
@@ -421,6 +556,8 @@ void LogInstructions()
                 state.insts[sqn].sqn = sqn;
                 state.insts[sqn].fu = fu;
                 state.insts[sqn].tag = tagDst;
+                state.insts[sqn].result = 0;
+                resultValid[sqn] = false;
                 state.nextSqN = (sqn + 1) & SqN_Mask;
 
                 LogRename(state.insts[sqn]);
@@ -549,14 +686,22 @@ void Initialize(int argc, char** argv, Args& args)
     else if (args.progFile.find(".s", args.progFile.size() - 2) != std::string::npos ||
              args.progFile.find(".S", args.progFile.size() - 2) != std::string::npos)
     {
-        if (system((std::string(TOOLCHAIN
-                                "as -mabi=ilp32 -march=rv32imac_zicsr_zfinx_zba_zbb_zbs_zicbom_zifencei -o temp.o ") +
-                    args.progFile)
-                       .c_str()) != 0)
+        auto asTool = PickFirstTool({TOOLCHAIN "as"});
+        auto ldTool = PickFirstTool({TOOLCHAIN "ld"});
+        if (asTool.empty() || ldTool.empty())
+        {
+            fprintf(stderr,
+                    "ERROR: missing assembler/linker for assembly input.\n"
+                    "Required tools: %sas and %sld\n",
+                    TOOLCHAIN, TOOLCHAIN);
             abort();
-        if (system(TOOLCHAIN "ld --no-warn-rwx-segments -Tlinker.ld test_programs/entry.o temp.o") !=
-            0)
-            abort();
+        }
+
+        RunChecked(asTool + " -mabi=ilp32 -march=rv32imac_zicsr_zfinx_zba_zbb_zbs_zicbom_zifencei -o temp.o " +
+                       QuoteShellArg(args.progFile),
+                   "assemble input program");
+        RunChecked(ldTool + " --no-warn-rwx-segments -Tlinker.ld test_programs/entry.o temp.o",
+                   "link input program");
         args.progFile = "a.out";
     }
 
@@ -570,8 +715,10 @@ void Initialize(int argc, char** argv, Args& args)
         };
         std::vector<ELFSection> sections;
         {
-            std::string cmd = std::string("readelf -S ") + args.progFile;
+            std::string cmd = "readelf -S " + QuoteShellArg(args.progFile);
             auto readelf = popen(cmd.c_str(), "r");
+            if (!readelf)
+                abort();
             char* line = nullptr;
             size_t line_size = 0;
             while (getline(&line, &line_size, readelf) != -1)
@@ -595,9 +742,19 @@ void Initialize(int argc, char** argv, Args& args)
                             ELFSection{match[1], std::stoul(match[3], nullptr, 16), std::stoul(match[5], nullptr, 16)});
                 }
             }
+            pclose(readelf);
         }
 
         size_t numProgBytes = 0;
+        simif.riscvTestTohostAddr = 0;
+        auto objcopyTool = PickFirstTool({TOOLCHAIN "objcopy", "objcopy", "llvm-objcopy"});
+        if (objcopyTool.empty())
+        {
+            fprintf(stderr,
+                    "ERROR: no objcopy tool found. Tried %sobjcopy, objcopy and llvm-objcopy.\n",
+                    TOOLCHAIN);
+            abort();
+        }
 
 
         for (auto& section : sections)
@@ -605,11 +762,14 @@ void Initialize(int argc, char** argv, Args& args)
             uint8_t* dstBytes = (uint8_t*)pram.data() + (section.addr & ~0x80000000);
             size_t maxSize = pram.size() * sizeof(uint32_t) - (dstBytes - (uint8_t*)pram.data());
 
+            if (section.name == ".tohost")
+                simif.riscvTestTohostAddr = section.addr;
+
             auto filename = section.name + ".bin";
-            auto cmd = (TOOLCHAIN "objcopy -I elf32-little -j ") + section.name +
-                       (" -O binary " + args.progFile + " " + filename);
-            if (system(cmd.c_str()) == -1)
-                abort();
+            std::remove(filename.c_str());
+            auto cmd = objcopyTool + " -I elf32-little -j " + QuoteShellArg(section.name) + " -O binary " +
+                       QuoteShellArg(args.progFile) + " " + QuoteShellArg(filename);
+            RunChecked(cmd, "extract ELF section");
 
             FILE* f = fopen(filename.c_str(), "rb");
             if (!f)
@@ -727,6 +887,7 @@ void Restore(std::string fileName)
     }
     state.id -= offset;
     state.curCycInstRet = 0;
+    memset(resultValid, 0, sizeof(resultValid));
 #endif
 }
 
@@ -755,7 +916,7 @@ void run_sim(Args& args, uint64_t timeout = 0)
     }
     else
     {
-        for (size_t i = 0; i < (1 << 24); i++)
+        for (size_t i = 0; i < kSimMemBytes; i++)
             wrap->top->Top->extMem->mem[i >> 2][i & 3] = pram[i];
 
         wrap->Reset();
@@ -767,6 +928,18 @@ void run_sim(Args& args, uint64_t timeout = 0)
     const uint64_t perfInterval = 1024 * 1024 * 8;
     uint64_t lastMInstret = wrap->csr->minstret;
     uint64_t nextMinstretPerf = wrap->csr->minstret + perfInterval;
+
+#ifndef COSIM
+    std::vector<uint32_t> tohostAddrs;
+    uint32_t riscvTestReturn = 0;
+    if (args.testMode)
+    {
+        if (simif.riscvTestTohostAddr != 0)
+            tohostAddrs.push_back(simif.riscvTestTohostAddr);
+        else
+            tohostAddrs = {0x80001000, 0x80002000, 0x80003000};
+    }
+#endif
 
     // Run
     wrap->top->en = 1;
@@ -782,6 +955,27 @@ void run_sim(Args& args, uint64_t timeout = 0)
 
         if (wrap->top->clk == 1)
             LogInstructions();
+
+#ifndef COSIM
+        if (args.testMode && wrap->top->clk == 1)
+        {
+            auto stUOp = GET(ST_UOp, core->__PVT__SQB_uop.data());
+            for (auto tohostAddr : tohostAddrs)
+            {
+                uint32_t data = 0;
+                if (ExtractStoreWord(stUOp, tohostAddr, data))
+                    riscvTestReturn = data;
+
+                if (ExtractStoreWord(stUOp, tohostAddr + 4, data) && static_cast<int32_t>(data) == 0)
+                {
+                    fprintf(stdout, "%s test with return code %.8x\n",
+                            riscvTestReturn == 1 ? "PASSED" : "FAILED",
+                            riscvTestReturn);
+                    Exit(0);
+                }
+            }
+        }
+#endif
 
         // Input
         if ((wrap->main_time & 0xff) == 0)

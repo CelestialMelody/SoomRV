@@ -23,6 +23,7 @@ class SpikeSimif : public simif_t
     bool doRestore = false;
     bool riscvTestMode = false;
     int riscvTestReturn = 0;
+    uint32_t riscvTestTohostAddr = 0;
     std::vector<Model*> models;
     std::vector<uint32_t>& pram;
     uint64_t& main_time;
@@ -69,7 +70,7 @@ class SpikeSimif : public simif_t
 
     void write_reg(int i, uint32_t data);
 
-    virtual int cosim_instr(const Inst& inst);
+    virtual int cosim_instr(const Inst& inst, bool skip_reg_check = false);
 
     const std::map<size_t, processor_t*>& get_harts() const override
     {
