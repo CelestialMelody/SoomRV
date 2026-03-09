@@ -239,6 +239,16 @@ make soomrv COSIM=0
 
 有关实现的一般概述，请参见 [概述](Overview.zh.md)。
 
+性能计数器输出细节可见 [perfc 输出实现分析](perfc_output_implementation.md)。
+
+`branch_pred_test.s` 测试链路与外部测试集接入记录可见 [branch_pred_test 与外部测试接入](branch_pred_test_and_external_tests.md)。
+
+外部测试失败复盘与修复记录可见 [external-tests 失败分析](external_tests_failure_analysis.md)。
+
+外部测试去除 COSIM 依赖（`COSIM=0` 也可正常退出）记录可见 [external-tests 去 COSIM 依赖改进](优化与改进/external_tests_no_cosim_dependency.md)。
+
+`Issue55` 后续的 COSIM 一致性补充（`instret_overflow` 与 Zfinx 浮点）可见 [COSIM 一致性补充](F部分改进文档说明/COSIM一致性补充：instret_overflow与Zfinx浮点.md)。
+
 ## 许可证
 
 SoomRV 在 MIT 许可证下发布。此源代码的使用受可以在 `LICENSE` 文件中找到的 MIT 风格许可证约束。

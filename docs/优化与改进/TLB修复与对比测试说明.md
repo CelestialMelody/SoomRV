@@ -195,3 +195,64 @@ make -C test_programs/dev compare
 1. 如果报 `../riscv-isa-sim/libriscv.a` / `libsoftfloat.a` / `libdisasm.a` 缺失，执行：`make setup`
 2. `make setup` 会执行 `git submodule update --init --recursive` 并编译 `riscv-isa-sim`：[`Makefile:149`](/home/zoomin/codes/RISCV/SoomRV/Makefile:149) 到 [`Makefile:153`](/home/zoomin/codes/RISCV/SoomRV/Makefile:153)
 3. 完成后重试本地步骤 2/3
+
+---
+
+## 7. P0-3：superpage 去重条件增强（`fixed_sp_dedup`）
+
+## 7.1 问题定义
+
+`TLB_fixed.sv` 的重复插入判定是“`vpn全等 + isSuper相等`”，对普通页有效；但 superpage 命中本身使用的是高位键比较。  
+这会留下一个窗口：同一 superpage 区域、低位 VPN 不同的两次回填，可能被视为不同条目而重复插入。
+
+## 7.2 实现方式
+
+保持原有 `TLB_fixed.sv` 不动，新增副本 `TLB_fixed_sp_dedup.sv`：
+
+1. 普通页：保持完整 VPN 相等判定。
+2. superpage：改为按 superpage 高位键判重（与命中逻辑同构）。
+
+配套开关：
+
+```bash
+make soomrv TLB_IMPL=orig
+make soomrv TLB_IMPL=fixed
+make soomrv TLB_IMPL=fixed_sp_dedup
+```
+
+## 7.3 微测试结果
+
+原始去重回归：
+
+```bash
+make -C test_programs/dev compare
+```
+
+结果：
+
+1. `orig RESULT_DUPLICATE=1`
+2. `fixed RESULT_DUPLICATE=0`
+
+superpage 专项回归：
+
+```bash
+make -C test_programs/dev compare-super
+```
+
+结果：
+
+1. `fixed RESULT_SUPER_DUPLICATE=1`
+2. `fixed_sp_dedup RESULT_SUPER_DUPLICATE=0`
+
+说明新增实现确实消除了 superpage 场景的重复插入。
+
+## 7.4 顶层构建验证
+
+按串行流程（`clean -> build`）验证两种 fixed 方案均可构建：
+
+```bash
+make clean && make soomrv TLB_IMPL=fixed BRANCH_PRED_IMPL=bt_arb PAGEWALKER_IMPL=pw_arb
+make clean && make soomrv TLB_IMPL=fixed_sp_dedup BRANCH_PRED_IMPL=bt_arb PAGEWALKER_IMPL=pw_arb
+```
+
+两条命令均通过，表明 `fixed_sp_dedup` 已满足顶层接入条件。
